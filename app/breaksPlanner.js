@@ -160,21 +160,41 @@ class BreaksPlanner extends EventEmitter {
     this.scheduler.plan()
   }
 
+  getBreakData () {
+    return {
+      postponeTime: this.lastPostponeTime || this.settings.get(`${this._scheduledBreakType}PostponeTime`)
+    }
+  }
+
   postponeCurrentBreak () {
     this.scheduler.cancel()
-    this.postponesNumber += 1
-    let postponeTime, eventName
+
+    // Initialize the postponeTime with the first postpone time from settings, if not already set.
+    if (!this.lastPostponeTime) {
+      this.lastPostponeTime = this.settings.get(`${this._scheduledBreakType}PostponeTime`)
+    }
+
+    let postponeTime = Math.max(this.lastPostponeTime, 10) // Cap the minimum postpone time at 10 seconds.
+    this.lastPostponeTime = Math.max(Math.floor(postponeTime / 2), 10)
+
+    let eventName
     const scheduledBreakType = this._scheduledBreakType
     const notification = this.settings.get(`${scheduledBreakType}Notification`)
-    if (notification && this.settings.get(`${scheduledBreakType}PostponeTime`) > this.settings.get(`${scheduledBreakType}NotificationInterval`)) {
-      postponeTime = this.settings.get(`${scheduledBreakType}PostponeTime`) - this.settings.get(`${scheduledBreakType}NotificationInterval`)
+
+    // Log the planned postpone time before scheduling it
+    log.info(`Stretchly: Postponing the ${scheduledBreakType} by ${postponeTime}ms`)
+
+    if (notification && postponeTime > this.settings.get(`${scheduledBreakType}NotificationInterval`)) {
+      postponeTime = postponeTime - this.settings.get(`${scheduledBreakType}NotificationInterval`)
       eventName = `start${scheduledBreakType.charAt(0).toUpperCase() + scheduledBreakType.slice(1)}Notification`
     } else {
-      postponeTime = this.settings.get(`${scheduledBreakType}PostponeTime`)
       eventName = `start${scheduledBreakType.charAt(0).toUpperCase() + scheduledBreakType.slice(1)}`
     }
+
     this.scheduler = new Scheduler(() => this.emit(eventName), postponeTime, eventName)
     this.scheduler.plan()
+
+    // Halve the postpone time for the next skip, floor the result, and ensure it doesn't go below 10 seconds.
     this.emit('updateToolTip')
   }
 
@@ -210,6 +230,7 @@ class BreaksPlanner extends EventEmitter {
     this.scheduler.cancel()
     this.breakNumber = 0
     this.postponesNumber = 0
+    this.lastPostponeTime = null
   }
 
   pause (milliseconds) {

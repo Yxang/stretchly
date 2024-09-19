@@ -729,6 +729,9 @@ function startMicrobreak () {
           })
         }
       }
+      const breakData = breakPlanner.getBreakData() // Get the break data directly from BreaksPlanner
+
+      event.sender.send('send-microbreak-data', breakData)
       event.sender.send('microbreakIdea', idea)
       event.sender.send('progress', startTime,
         breakDuration, strictMode, postponable, postponableDurationPercent, calculateBackgroundColor(settings.get('miniBreakColor')))
@@ -874,6 +877,9 @@ function startBreak () {
           })
         }
       }
+      const breakData = breakPlanner.getBreakData() // Get the break data directly from BreaksPlanner
+
+      event.sender.send('send-break-data', breakData)
       event.sender.send('breakIdea', idea)
       event.sender.send('progress', startTime,
         breakDuration, strictMode, postponable, postponableDurationPercent, calculateBackgroundColor(settings.get('mainColor')))

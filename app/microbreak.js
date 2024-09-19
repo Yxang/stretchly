@@ -59,4 +59,12 @@ window.onload = (e) => {
     }, 100)
     ipcRenderer.send('mini-break-loaded')
   })
+
+  ipcRenderer.on('send-microbreak-data', (event, data) => {
+    const postponeTime = data.postponeTime || 0
+    const postponeTimeElement = document.querySelector('#postpone-time')
+
+    // Update the postpone-time span with the time in seconds
+    postponeTimeElement.innerHTML = `(${Math.trunc(postponeTime / 1000)}s)`
+  })
 }
