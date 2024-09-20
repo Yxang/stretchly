@@ -111,6 +111,7 @@ class BreaksPlanner extends EventEmitter {
 
   nextBreak () {
     this.postponesNumber = 0
+    this.lastPostponeTime = null
     if (this.scheduler) this.scheduler.cancel()
     const shouldBreak = this.settings.get('break')
     const shouldMicrobreak = this.settings.get('microbreak')
