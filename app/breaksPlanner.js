@@ -175,8 +175,8 @@ class BreaksPlanner extends EventEmitter {
       this.lastPostponeTime = this.settings.get(`${this._scheduledBreakType}PostponeTime`)
     }
 
-    let postponeTime = Math.max(this.lastPostponeTime, 10) // Cap the minimum postpone time at 10 seconds.
-    this.lastPostponeTime = Math.max(Math.floor(postponeTime / 2), 10)
+    let postponeTime = Math.max(this.lastPostponeTime, 10000)
+    this.lastPostponeTime = Math.max(Math.floor(postponeTime / 2), 10000)
 
     let eventName
     const scheduledBreakType = this._scheduledBreakType
@@ -191,6 +191,7 @@ class BreaksPlanner extends EventEmitter {
     } else {
       eventName = `start${scheduledBreakType.charAt(0).toUpperCase() + scheduledBreakType.slice(1)}`
     }
+    log.info(`Stretchly: actual postpone time: ${postponeTime}ms considering notification interval ${this.settings.get(`${scheduledBreakType}NotificationInterval`)}ms`)
 
     this.scheduler = new Scheduler(() => this.emit(eventName), postponeTime, eventName)
     this.scheduler.plan()
