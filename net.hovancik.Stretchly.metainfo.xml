@@ -36,6 +36,49 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="1.17.2" date="2025-1-19">
+      <description>
+        <p>Fixed</p>
+        <ul>
+          <li>Linux DND detection</li>
+          <li>improve macOS DND detection</li>
+          <li>debug info when from Windows Store</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.17.1" date="2024-12-25">
+      <description>
+        <p>Fixed</p>
+        <ul>
+          <li>Ubuntu Unity DND detection</li>
+          <li>macOS app start</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.17.0" date="2024-12-24">
+      <description>
+        <p>Added</p>
+        <ul>
+          <li>Bengali, Catalan, Greek and Serbian translations</li>
+          <li>it is not possible to close app during break that is in strict mode</li>
+          <li>logs command line option to show location of logs</li>
+          <li>advanced option to make break windows' background blurred (macOS)</li>
+        </ul>
+        <p>Fixed</p>
+        <ul>
+          <li>error when end break shortcut is not set</li>
+          <li>time in tray shows the correct number (and matches the tooltip value)</li>
+        </ul>
+        <p>Changed</p>
+        <ul>
+          <li>improved break window loading</li>
+          <li>improve DND detection for Linux</li>
+          <li>updated many translations</li>
+          <li>better icons for "Show time in tray"</li>
+          <li>showBreakActionsInStrictMode migrated to showTrayMenuInStrictMode</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.16.0" date="2024-08-11">
       <description>
         <p>Added</p>

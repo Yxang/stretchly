@@ -9,11 +9,13 @@ class DndManager extends EventEmitter {
     this.timer = null
     this.isOnDnd = false
 
+    this._unsupDEErrorShown = false
+
     if (process.platform === 'win32') {
       this.windowsFocusAssist = require('windows-focus-assist')
       this.windowsQuietHours = require('windows-quiet-hours')
     } else if (process.platform === 'darwin') {
-      this.macosNotificationState = require('macos-notification-state')
+      this.util = require('node:util')
     } else if (process.platform === 'linux') {
       this.bus = require('dbus-final').sessionBus()
       this.util = require('node:util')
@@ -29,7 +31,7 @@ class DndManager extends EventEmitter {
     this._checkDnd()
     log.info('Stretchly: starting Do Not Disturb monitoring')
     if (process.platform === 'linux') {
-      log.info(`System: Your Desktop seems to be ${process.env.XDG_CURRENT_DESKTOP}`)
+      log.info(`System: Your Desktop seems to be ${this._desktopEnviroment}.`)
     }
   }
 
@@ -41,40 +43,74 @@ class DndManager extends EventEmitter {
     log.info('Stretchly: stopping Do Not Disturb monitoring')
   }
 
+  get _desktopEnviroment () {
+    // https://github.com/electron/electron/issues/40795
+    // https://specifications.freedesktop.org/mime-apps-spec/latest/file.html
+    // https://specifications.freedesktop.org/menu-spec/latest/onlyshowin-registry.html
+    return process.env.ORIGINAL_XDG_CURRENT_DESKTOP ||
+      process.env.XDG_CURRENT_DESKTOP || 'unknown'
+  }
+
   async _isDndEnabledLinux () {
-    try {
-      const obj = await this.bus.getProxyObject('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
-      const properties = obj.getInterface('org.freedesktop.DBus.Properties')
-      const dndEnabled = await properties.Get('org.freedesktop.Notifications', 'Inhibited')
-      if (await dndEnabled.value) {
-        return true
-      }
-    } catch (e) {
-      // KDE is not running
-    }
+    const de = this._desktopEnviroment.toLowerCase()
 
-    try {
-      const obj = await this.bus.getProxyObject('org.xfce.Xfconf', '/org/xfce/Xfconf')
-      const properties = obj.getInterface('org.xfce.Xfconf')
-      const dndEnabled = await properties.GetProperty('xfce4-notifyd', '/do-not-disturb')
-      if (await dndEnabled.value) {
-        return true
-      }
-    } catch (e) {
-      // XFCE is not running
+    switch (true) {
+      case de.includes('kde'):
+        try {
+          const obj = await this.bus.getProxyObject('org.freedesktop.Notifications', '/org/freedesktop/Notifications')
+          const properties = obj.getInterface('org.freedesktop.DBus.Properties')
+          const dndEnabled = await properties.Get('org.freedesktop.Notifications', 'Inhibited')
+          if (await dndEnabled.value) {
+            return true
+          }
+        } catch (e) { }
+        break
+      case de.includes('xfce'):
+        try {
+          const obj = await this.bus.getProxyObject('org.xfce.Xfconf', '/org/xfce/Xfconf')
+          const properties = obj.getInterface('org.xfce.Xfconf')
+          const dndEnabled = await properties.GetProperty('xfce4-notifyd', '/do-not-disturb')
+          if (await dndEnabled.value) {
+            return true
+          }
+        } catch (e) { }
+        break
+      case de.includes('gnome') || de.includes('unity'):
+        try {
+          const exec = this.util.promisify(require('node:child_process').exec)
+          const { stdout } = await exec('gsettings get org.gnome.desktop.notifications show-banners')
+          if (stdout.replace(/[^0-9a-zA-Z]/g, '') === 'false') {
+            return true
+          }
+        } catch (e) { }
+        break
+      case de.includes('cinnamon'):
+        try {
+          const exec = this.util.promisify(require('node:child_process').exec)
+          const { stdout } = await exec('gsettings get org.cinnamon.desktop.notifications display-notifications')
+          if (stdout.replace(/[^0-9a-zA-Z]/g, '') === 'false') {
+            return true
+          }
+        } catch (e) { }
+        break
+      case de.includes('mate'):
+        try {
+          const exec = this.util.promisify(require('node:child_process').exec)
+          const { stdout } = await exec('gsettings get org.mate.NotificationDaemon do-not-disturb')
+          if (stdout.replace(/[^0-9a-zA-Z]/g, '') === 'true') {
+            return true
+          }
+        } catch (e) { }
+        break
+      case de.includes('lxqt'):
+        return await this._getConfigValue('~/.config/lxqt/notifications.conf', 'doNotDisturb')
+      default:
+        if (!this._unsupDEErrorShown) {
+          log.info(`Stretchly: ${this._desktopEnviroment} not supported for DND detection, yet.`)
+          this._unsupDEErrorShown = true
+        }
+        return false
     }
-
-    try {
-      const exec = this.util.promisify(require('node:child_process').exec)
-      const { stdout } = await exec('gsettings get org.gnome.desktop.notifications show-banners')
-      if (stdout.replace(/[^0-9a-zA-Z]/g, '') === 'false') {
-        return true
-      }
-    } catch (e) {
-      // Gnome / gsettings is not running
-    }
-
-    return false
   }
 
   async _doNotDisturb () {
@@ -88,11 +124,33 @@ class DndManager extends EventEmitter {
         const wqh = this.windowsQuietHours.getIsQuietHours()
         return wqh || (wfa !== -1 && wfa !== 0)
       } else if (process.platform === 'darwin') {
-        return this.macosNotificationState.getDoNotDisturb()
+        try {
+          const exec = this.util.promisify(require('node:child_process').exec)
+          const { stdout } = await exec('defaults read com.apple.controlcenter "NSStatusItem Visible FocusModes"')
+          if (stdout.replace(/[^0-9a-zA-Z]/g, '') === '1') {
+            return true
+          }
+        } catch (e) { }
       } else if (process.platform === 'linux') {
         return await this._isDndEnabledLinux()
       }
     } else {
+      return false
+    }
+  }
+
+  async _getConfigValue (filePath, key) {
+    try {
+      const data = await require('fs').promises.readFile(filePath, 'utf8')
+      const lines = data.split('\n')
+      for (const line of lines) {
+        const [configKey, value] = line.split('=')
+        if (configKey.trim() === key) {
+          return value.trim().toLowerCase() === 'true'
+        }
+      }
+      return false
+    } catch (e) {
       return false
     }
   }

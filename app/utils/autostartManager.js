@@ -28,7 +28,7 @@ class AutostartManager {
     } else if (this.platform === 'win32' && this.windowsStore) {
       return await this._windowsStoreAutoLaunch.isEnabled()
     } else {
-      return Promise.resolve(this.app.getLoginItemSettings().openAtLogin)
+      return await this.app.getLoginItemSettings().openAtLogin
     }
   }
 

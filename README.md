@@ -27,9 +27,9 @@ The latest official **installers** and **portable versions** for macOS, Windows 
 ### macOS
 
 It is recommended to install *Stretchly* with [Homebrew](https://brew.sh/) by running the folowing command.
-See [Application Signing](#application-signing).
+See [Application Signing](#application-signing) for details.
 ```zsh
-brew update && brew install --cask stretchly
+brew update && brew install --cask --no-quarantine stretchly
 ```
 
 When upgrading, run the following command.
@@ -105,8 +105,9 @@ For Natural breaks, you might need some packages too (`libxss-dev`).
 If *Stretchly* is not starting, you might need to run:
 ```sh
 sudo sysctl kernel.unprivileged_userns_clone=1
+sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 ```
-Read more [here](https://github.com/electron/electron/issues/17972). Depending on your distro, you probably want to do something similar to this, so the preferences are kept after reboot: Add `kernel.unprivileged_userns_clone=1` to `/etc/sysctl.d/00-local-userns.conf` and reboot.
+Read more [here](https://github.com/electron/electron/issues/17972). Depending on your distro, you probably want to do something similar to this, so the preferences are kept after reboot: Add `kernel.unprivileged_userns_clone=1` and `kernel.apparmor_restrict_unprivileged_userns=0` to `/etc/sysctl.d/00-local-userns.conf` and reboot.
 
 ### Running from source
 
@@ -302,7 +303,7 @@ In the preferences file, change `mainColor` to whatever color you like.
 To show the Welcome window again on the next start, change `"isFirstRun"` to `true`.
 
 #### Theme transparency [![Contributor Preferences](https://img.shields.io/badge/Contributor_Preferences-✔-success)](#contributor-preferences)
-To specify how solid the break window should be when Theme transparency is enabled, set the value of `opacity` from `0` to `1` (which is in turn 0 to 100%).
+To specify how solid the break window should be when Theme transparency is enabled, set the value of `opacity` from `0` to `1` (which is in turn 0 to 100%). If you want the break window to have a blurred background, set the value of `blurredBackground` to `true` (for macOS only).
 
 #### Break window size [![Contributor Preferences](https://img.shields.io/badge/Contributor_Preferences-✔-success)](#contributor-preferences)
 To specify the size of the break window, set the value of `breakWindowHeight` and `breakWindowWidth` from `0` to `0.99` (which is in turn 0 to 99% of the size of the screen). Don't set 100% as that's fullscreen.
@@ -370,8 +371,8 @@ To hide Stretchly icon in menubar/tray, set the value of `showTrayIcon` from `tr
 
 Note that this will disable graphical way of opening Stretchly Preferences. To access Preferences, you will have to use command line options (ie: `stretchly preferences` on Linux).
 
-#### Show break actions (Skip, Pause, Reset) in Strict Mode
-If you want to show options 'Skip to next break', 'Pause' or 'Reset Breaks' even while in Strict mode, set `showBreakActionsInStrictMode` to `true`.
+#### Show tray menu in Strict Mode
+If you want to show tray menu even while in Strict mode, set `showTrayMenuInStrictMode` to `true`.
 
 ## Contributor Preferences
 
@@ -434,7 +435,7 @@ Feel free to join in the [development](https://github.com/hovancik/stretchly/blo
 - [git](https://git-scm.com/)
 - [Github account](https://github.com/), if you'd like to upstream your changes
 
-Now you can clone the repo with `git clone https://github.com/hovancik/stretchly.git`. Change to the new created directory and run `npm i` to install node packages needed.
+Now you can clone the repo with `git clone https://github.com/hovancik/stretchly.git`. Change to the new created directory and run `npm i` to install node packages needed. If your system is running Python 3.12 and newer, you also need to install `setuptools`, for example with `pip install setuptools`, as `distutils` have been [deprecated](https://docs.python.org/3/library/distutils.html).
 
 Read on.
 
@@ -543,6 +544,7 @@ You can help to translate Stretchly on [Weblate](https://hosted.weblate.org/enga
 - Nai You-Ran, [@skyran1278](https://github.com/skyran1278)
 - Lorenzo García Rivera, @lorenzogrv, [lorenzogrv.tech](https://lorenzogrv.tech)
 - Aleh, [@alehpa](https://github.com/alehpa)
+- Philip Wintersteiner, [@Wikiwix](https://github.com/wikiwix)
 
 Also see Github's list of [contributors](https://github.com/hovancik/stretchly/graphs/contributors).
 
@@ -556,7 +558,6 @@ Also see Github's list of [contributors](https://github.com/hovancik/stretchly/g
  - http://web.stanford.edu/dept/EHS/prod/general/ergo/microbreaks.html
  - https://www.spineuniverse.com/wellness/ergonomics/workstation-ergonomics-take-break
  - http://www.lifehack.org/articles/productivity/21-counter-intuitive-break-ideas-to-boost-your-productivity-at-work.html
- - http://www.latofonts.com/lato-free-fonts/
  - http://www.huffingtonpost.com/2012/07/24/sitting-at-work-why-its-dangerous-alternatives_n_1695618.html
  - http://www.unm.edu/~lkravitz/Article%20folder/sittingUNM.html
  - https://www.ninds.nih.gov/News-Events/News-and-Press-Releases/Press-Releases/Want-learn-new-skill-Take-some-short-breaks

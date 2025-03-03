@@ -37,9 +37,7 @@ function formatKeyboardShortcut (keyboardShortcut) {
 }
 
 function minutesRemaining (milliseconds) {
-  const seconds = Math.ceil(milliseconds / 1000.0)
-  const minutes = Math.ceil(seconds / 60.0)
-  return minutes
+  return Math.round(milliseconds / 60000.0)
 }
 
 function shouldShowNotificationTitle (platform, systemVersion) {

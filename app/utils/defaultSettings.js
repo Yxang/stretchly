@@ -27,6 +27,7 @@ module.exports = {
   mainColor: '#478484',
   miniBreakColor: '#478484',
   transparentMode: false,
+  blurredBackground: false,
   opacity: 0.9,
   audio: 'crystal-glass',
   miniBreakAudio: 'crystal-glass',
@@ -73,5 +74,5 @@ module.exports = {
   skipToNextMiniBreakShortcut: '',
   skipToNextLongBreakShortcut: '',
   resetBreaksShortcut: '',
-  showBreakActionsInStrictMode: false
+  showTrayMenuInStrictMode: false
 }

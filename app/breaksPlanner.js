@@ -293,6 +293,23 @@ class BreaksPlanner extends EventEmitter {
       }
     }
   }
+
+  get timeToNextBreak () {
+    if (this.scheduler.reference === 'startMicrobreak' || this.scheduler.reference === 'startBreak') {
+      return this.scheduler.timeLeft
+    }
+    if (this.scheduler.reference === 'startBreakNotification') {
+      return this.scheduler.timeLeft + (this.settings.get('breakNotification')
+        ? this.settings.get('breakNotificationInterval')
+        : 0)
+    }
+    if (this.scheduler.reference === 'startMicrobreakNotification') {
+      return this.scheduler.timeLeft + (this.settings.get('microbreakNotification')
+        ? this.settings.get('microbreakNotificationInterval')
+        : 0)
+    }
+    return null
+  }
 }
 
 module.exports = BreaksPlanner

@@ -19,7 +19,7 @@ body > div > :last-child {
 .welcome > :nth-child(1) {
   display: flex;
   flex-direction: column;
-  margin-bottom: 24px;
+  margin-bottom: 60px;
 }
 
 .welcome > :nth-child(1) > div {
@@ -52,26 +52,6 @@ body[dir=rtl] .welcome > :nth-child(1) > div > span {
   line-height: 30px;
 }
 
-.welcome > :nth-child(2) {
-  display: grid;
-  grid-gap: 10px 20px;
-  grid-template: repeat(5, minmax(86px, min-content))/ repeat(8, 1fr);
-}
-
-.welcome > :nth-child(2) > div {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-}
-
-.welcome > :nth-child(2) > div > img {
-  border: 1px solid #979797;
-  border-radius: 42px;
-  height: 42px;
-  margin: 0 auto;
-  width: 42px;
-}
-
 .welcome > :last-child {
   display: flex;
   margin-top: 26px;
@@ -90,4 +70,11 @@ body[dir=rtl] .welcome > :last-child > :last-child {
 body[dir=rtl] .welcome input[type="radio"] + label:before {
   display: block;
   margin: 0 auto;
+}
+
+select {
+  min-height: 50vh;
+  padding-left: 8px;
+  text-align: center;
+  width: 70%;
 }

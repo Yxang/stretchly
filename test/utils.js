@@ -118,13 +118,16 @@ describe('canSkip and canPostpone', () => {
 
   describe('minutesRemaining', () => {
     it('one minute remaining', () => {
-      minutesRemaining(1000).should.equal(1)
+      minutesRemaining(60 * 1000).should.equal(1)
     })
-    it('less then one minute remaining', () => {
-      minutesRemaining(1).should.equal(1)
+    it('twenty seconds remaining', () => {
+      minutesRemaining(20 * 1000).should.equal(0)
+    })
+    it('forty seconds remaining', () => {
+      minutesRemaining(40 * 1000).should.equal(1)
     })
     it('ten minutes remaining', () => {
-      minutesRemaining(600000).should.equal(10)
+      minutesRemaining(600 * 1000).should.equal(10)
     })
   })
 

@@ -7,6 +7,7 @@ class StatusMessages {
     this.doNotDisturb = breakPlanner.dndManager.isOnDnd
     this.appExclusionPause = breakPlanner.appExclusionsManager.isSchedulerCleared
     this.timeLeft = breakPlanner.scheduler.timeLeft
+    this.timeToNextBreak = breakPlanner.timeToNextBreak
     this.isPaused = breakPlanner.isPaused
     this.breakNumber = breakPlanner.breakNumber
     this.settings = settings
@@ -43,38 +44,16 @@ class StatusMessages {
 
     const breakInterval = this.settings.get('breakInterval') + 1
     const breakNumber = this.breakNumber % breakInterval
-    const breakNotificationInterval = this.settings.get('breakNotification')
-      ? this.settings.get('breakNotificationInterval')
-      : 0
-    const microbreakNotificationInterval = this.settings.get('microbreakNotification')
-      ? this.settings.get('microbreakNotificationInterval')
-      : 0
 
-    if (this.reference === 'startBreak') {
+    if (this.reference === 'startBreak' || this.reference === 'startBreakNotification') {
       message += i18next.t('statusMessages.nextLongBreak') + ' ' +
-        Utils.formatTimeIn(this.timeLeft, this.settings.get('language'))
+        Utils.formatTimeIn(this.timeToNextBreak, this.settings.get('language'))
       return message
     }
 
-    if (this.reference === 'startMicrobreak') {
+    if (this.reference === 'startMicrobreak' || this.reference === 'startMicrobreakNotification') {
       message += i18next.t('statusMessages.nextMiniBreak') + ' ' +
-        Utils.formatTimeIn(this.timeLeft, this.settings.get('language'))
-      if (this.settings.get('break')) {
-        message += '\n' + i18next.t('statusMessages.nextLongBreak') + ' ' +
-          i18next.t('statusMessages.afterMiniBreak', { count: breakInterval - breakNumber })
-      }
-      return message
-    }
-
-    if (this.reference === 'startBreakNotification') {
-      message += i18next.t('statusMessages.nextLongBreak') + ' ' +
-        Utils.formatTimeIn(this.timeLeft + breakNotificationInterval, this.settings.get('language'))
-      return message
-    }
-
-    if (this.reference === 'startMicrobreakNotification') {
-      message += i18next.t('statusMessages.nextMiniBreak') + ' ' +
-        Utils.formatTimeIn(this.timeLeft + microbreakNotificationInterval, this.settings.get('language'))
+        Utils.formatTimeIn(this.timeToNextBreak, this.settings.get('language'))
       if (this.settings.get('break')) {
         message += '\n' + i18next.t('statusMessages.nextLongBreak') + ' ' +
           i18next.t('statusMessages.afterMiniBreak', { count: breakInterval - breakNumber })

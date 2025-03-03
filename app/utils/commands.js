@@ -39,7 +39,10 @@ const allCommands = {
     description: 'Show this help message'
   },
   version: {
-    description: 'Show current stretchly version'
+    description: 'Show current Stretchly version'
+  },
+  logs: {
+    description: 'Show location of logs file'
   },
   reset: {
     description: 'Reset breaks'
@@ -179,6 +182,10 @@ class Command {
         this.ver()
         break
 
+      case 'logs':
+        this.logs()
+        break
+
       default:
         if (this.hasSupportedCommand) {
           log.info(`Stretchly${this.isFirstInstance ? '' : ' 2'}: forwarding command '${this.command}' to the main instance`)
@@ -225,6 +232,10 @@ class Command {
 
   ver () {
     console.log(`Stretchly version ${this.version}`)
+  }
+
+  logs () {
+    console.log(log.transports.file.getFile().path)
   }
 
   cmdHelp () {

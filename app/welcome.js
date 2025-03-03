@@ -42,6 +42,11 @@ window.onload = (e) => {
   document.ondrop = event =>
     event.preventDefault()
 
+  ipcRenderer.on('translate', (event) => {
+    htmlTranslate.translate()
+    setSameWidths()
+  })
+
   ipcRenderer.on('renderSettings', (event, settings) => {
     document.querySelectorAll('input[type="radio"]').forEach(radio => {
       let value
@@ -59,11 +64,18 @@ window.onload = (e) => {
       if (!eventsAttached) {
         radio.onchange = (event) => {
           ipcRenderer.send('save-setting', radio.name, value)
-          htmlTranslate.translate()
           setSameWidths()
         }
       }
     })
+
+    document.querySelector('#language').value = settings.language
+    document.querySelector('#language').focus()
+    if (!eventsAttached) {
+      document.querySelector('#language').onchange = (event) => {
+        ipcRenderer.send('save-setting', 'language', event.target.value)
+      }
+    }
     setSameWidths()
   })
 

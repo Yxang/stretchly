@@ -57,7 +57,6 @@ let myStretchlyWindow = null
 let settings
 let pausedForSuspendOrLock = false
 let nextIdea = null
-let appIsQuitting = false
 let updateChecker
 let currentTrayIconPath = null
 let currentTrayMenuTemplate = null
@@ -161,9 +160,16 @@ app.on('ready', initialize)
 app.on('window-all-closed', () => {
   // do nothing, so app wont get closed
 })
-app.on('before-quit', () => {
-  appIsQuitting = true
-  globalShortcut.unregisterAll()
+app.on('before-quit', (event) => {
+  if ((breakPlanner.scheduler.reference === 'finishMicrobreak' && settings.get('microbreakStrictMode')) ||
+      (breakPlanner.scheduler.reference === 'finishBreak' && settings.get('breakStrictMode'))
+  ) {
+    log.info('Stretchly: preventing app closure (in break with strict mode)')
+    event.preventDefault()
+  } else {
+    globalShortcut.unregisterAll()
+    app.quit()
+  }
 })
 
 async function initialize (isAppStart = true) {
@@ -181,7 +187,7 @@ async function initialize (isAppStart = true) {
       },
       migrations: {
         '1.13.0': store => {
-          if (store.get('pauseBreaksShortcut')) {
+          if (store.has('pauseBreaksShortcut')) {
             store.set('pauseBreaksToggleShortcut', store.get('pauseBreaksShortcut'))
             log.info(`Stretchly: settings pauseBreaksToggleShortcut to "${store.get('pauseBreaksShortcut')}"`)
             store.delete('pauseBreaksShortcut')
@@ -189,9 +195,19 @@ async function initialize (isAppStart = true) {
           } else {
             log.info('Stretchly: not migrating pauseBreaksShortcut')
           }
-          if (store.get('pauseBreaksShortcut')) {
+          if (store.has('pauseBreaksShortcut')) {
             store.delete('resumeBreaksShortcut')
             log.info('Stretchly: removing resumeBreaksShortcut')
+          }
+        },
+        '1.17.0': store => {
+          if (store.has('showBreakActionsInStrictMode')) {
+            store.set('showTrayMenuInStrictMode', store.get('showBreakActionsInStrictMode'))
+            log.info(`Stretchly: settings showTrayMenuInStrictMode to "${store.get('showBreakActionsInStrictMode')}"`)
+            store.delete('showBreakActionsInStrictMode')
+            log.info('Stretchly: removing showBreakActionsInStrictMode')
+          } else {
+            log.info('Stretchly: not migrating showBreakActionsInStrictMode')
           }
         }
       },
@@ -294,7 +310,13 @@ function startI18next () {
     })
 }
 
-i18next.on('languageChanged', function (lng) {
+i18next.on('languageChanged', async function (lng) {
+  if (welcomeWin) {
+    welcomeWin.send('translate', await settingsToSend())
+  }
+  if (preferencesWin) {
+    preferencesWin.send('translate', await settingsToSend())
+  }
   updateTray()
   loadIdeas()
 })
@@ -479,7 +501,7 @@ function trayIconPath () {
     darkMode: nativeTheme.shouldUseDarkColors,
     platform: process.platform,
     timeToBreakInTray: settings.get('timeToBreakInTray'),
-    timeToBreak: Utils.minutesRemaining(breakPlanner.scheduler.timeLeft),
+    timeToBreak: Utils.minutesRemaining(breakPlanner.timeToNextBreak),
     reference: breakPlanner.scheduler.reference
   }
   const trayIconFileName = new AppIcon(params).trayIconFileName
@@ -529,9 +551,9 @@ function createWelcomeWindow (isAppStart = true) {
     const modalPath = path.join('file://', __dirname, '/welcome.html')
     welcomeWin = new BrowserWindow({
       x: displaysX(-1, 1000),
-      y: displaysY(-1, 850),
+      y: displaysY(-1, 750),
       width: 1000,
-      height: 850,
+      height: 750,
       autoHideMenuBar: true,
       icon: windowIconPath(),
       backgroundColor: 'EDEDED',
@@ -652,6 +674,22 @@ function startBreakNotification () {
   updateTray()
 }
 
+function getBlurredBackgroundWindowOptions () {
+  if (!settings.get('blurredBackground')) {
+    return {}
+  }
+
+  switch (process.platform) {
+    case 'darwin':
+      return {
+        vibrancy: 'hud',
+        visualEffectState: 'active'
+      }
+    default:
+      return {}
+  }
+}
+
 function startMicrobreak () {
   // don't start another break if break running
   if (microbreakWins) {
@@ -674,7 +712,7 @@ function startMicrobreak () {
   nextIdea = null
 
   if (settings.get('microbreakStartSoundPlaying') && !settings.get('silentNotifications')) {
-    processWin.webContents.send('playSound', settings.get('mimiBreakAudio'), settings.get('volume'))
+    processWin.webContents.send('playSound', settings.get('miniBreakAudio'), settings.get('volume'))
   }
 
   for (let localDisplayId = 0; localDisplayId < numberOfDisplays(); localDisplayId++) {
@@ -688,12 +726,15 @@ function startMicrobreak () {
       show: false,
       backgroundThrottling: false,
       transparent: true,
+      ...getBlurredBackgroundWindowOptions(),
       backgroundColor: calculateBackgroundColor(settings.get('miniBreakColor')),
       skipTaskbar: !showBreaksAsRegularWindows,
       focusable: showBreaksAsRegularWindows,
       alwaysOnTop: !showBreaksAsRegularWindows,
       hasShadow: false,
       title: 'Stretchly',
+      titleBarStyle: 'hidden',
+      titleBarOverlay: false,
       webPreferences: {
         preload: path.join(__dirname, './microbreak.js'),
         enableRemoteModule: true,
@@ -754,6 +795,8 @@ function startMicrobreak () {
         if (showBreaksAsRegularWindows) {
           microbreakWinLocal.setFullScreen(settings.get('fullscreen'))
         } else {
+          microbreakWinLocal.setMinimizable(false)
+          microbreakWinLocal.setClosable(false)
           microbreakWinLocal.setKiosk(settings.get('fullscreen'))
         }
       }
@@ -775,10 +818,10 @@ function startMicrobreak () {
     microbreakWinLocal.setAlwaysOnTop(!showBreaksAsRegularWindows, 'pop-up-menu')
     if (microbreakWinLocal) {
       microbreakWinLocal.on('close', (e) => {
-        if (settings.get('showBreaksAsRegularWindows')) {
-          if (!appIsQuitting && !microbreakWinLocal.fullScreen) {
-            e.preventDefault()
-          }
+        if (breakPlanner.scheduler.timeLeft > 0 && settings.get('microbreakStrictMode')) {
+          // FIXME this will still log when postponing break
+          log.info('Stretchly: preventing closing break window as in strict mode')
+          e.preventDefault()
         }
       })
       microbreakWinLocal.on('closed', () => {
@@ -837,12 +880,15 @@ function startBreak () {
       show: false,
       backgroundThrottling: false,
       transparent: true,
+      ...getBlurredBackgroundWindowOptions(),
       backgroundColor: calculateBackgroundColor(settings.get('mainColor')),
       skipTaskbar: !showBreaksAsRegularWindows,
       focusable: showBreaksAsRegularWindows,
       alwaysOnTop: !showBreaksAsRegularWindows,
       hasShadow: false,
       title: 'Stretchly',
+      titleBarStyle: 'hidden',
+      titleBarOverlay: false,
       webPreferences: {
         preload: path.join(__dirname, './break.js'),
         enableRemoteModule: true,
@@ -902,6 +948,8 @@ function startBreak () {
         if (showBreaksAsRegularWindows) {
           breakWinLocal.setFullScreen(settings.get('fullscreen'))
         } else {
+          breakWinLocal.setMinimizable(false)
+          breakWinLocal.setClosable(false)
           breakWinLocal.setKiosk(settings.get('fullscreen'))
         }
       }
@@ -924,10 +972,10 @@ function startBreak () {
     breakWinLocal.setAlwaysOnTop(!showBreaksAsRegularWindows, 'pop-up-menu')
     if (breakWinLocal) {
       breakWinLocal.on('close', (e) => {
-        if (settings.get('showBreaksAsRegularWindows')) {
-          if (!appIsQuitting && !breakWinLocal.fullScreen) {
-            e.preventDefault()
-          }
+        if (breakPlanner.scheduler.timeLeft > 0 && settings.get('breakStrictMode')) {
+          // FIXME this will still log when postponing break
+          log.info('Stretchly: preventing closing break window as in strict mode')
+          e.preventDefault()
         }
       })
       breakWinLocal.on('closed', () => {
@@ -951,7 +999,7 @@ function startBreak () {
 }
 
 function breakComplete (shouldPlaySound, windows, breakType) {
-  if (globalShortcut.isRegistered(settings.get('endBreakShortcut'))) {
+  if (settings.get('endBreakShortcut') && globalShortcut.isRegistered(settings.get('endBreakShortcut'))) {
     globalShortcut.unregister(settings.get('endBreakShortcut'))
   }
   if (shouldPlaySound && !settings.get('silentNotifications')) {
@@ -1050,7 +1098,7 @@ function calculateBackgroundColor (color) {
   if (settings.get('transparentMode')) {
     opacityMultiplier = settings.get('opacity')
   }
-  return color + Math.round(opacityMultiplier * 255).toString(16)
+  return color + Math.round(opacityMultiplier * 255).toString(16).padStart(2, '0')
 }
 
 function loadIdeas () {
@@ -1216,13 +1264,16 @@ function getTrayMenuTemplate () {
     })
   }
 
-  if (breakPlanner.scheduler.reference === 'finishMicrobreak' && settings.get('microbreakStrictMode') &&
-     !settings.get('showBreakActionsInStrictMode')) {
-    // nothing
-  } else if (breakPlanner.scheduler.reference === 'finishBreak' && settings.get('breakStrictMode') &&
-    !settings.get('showBreakActionsInStrictMode')) {
-    // nothing
-  } else if (!(breakPlanner.isPaused || breakPlanner.dndManager.isOnDnd || breakPlanner.appExclusionsManager.isSchedulerCleared)) {
+  if ((breakPlanner.scheduler.reference === 'finishMicrobreak' && settings.get('microbreakStrictMode') &&
+        !settings.get('showTrayMenuInStrictMode')) ||
+      (breakPlanner.scheduler.reference === 'finishBreak' && settings.get('breakStrictMode') &&
+      !settings.get('showTrayMenuInStrictMode'))
+  ) {
+    // empty menu, we are in strict mode
+    return trayMenu
+  }
+
+  if (!(breakPlanner.isPaused || breakPlanner.dndManager.isOnDnd || breakPlanner.appExclusionsManager.isSchedulerCleared)) {
     let submenu = []
     if (settings.get('microbreak')) {
       submenu = submenu.concat([{
@@ -1252,12 +1303,6 @@ function getTrayMenuTemplate () {
         updateTray()
       }
     })
-  } else if (breakPlanner.scheduler.reference === 'finishMicrobreak' && settings.get('microbreakStrictMode') &&
-    !settings.get('showBreakActionsInStrictMode')) {
-    // nothing
-  } else if (breakPlanner.scheduler.reference === 'finishBreak' && settings.get('breakStrictMode') &&
-   !settings.get('showBreakActionsInStrictMode')) {
-    // nothing
   } else if (!(breakPlanner.dndManager.isOnDnd || breakPlanner.appExclusionsManager.isSchedulerCleared)) {
     trayMenu.push({
       label: i18next.t('main.pause'),
@@ -1467,8 +1512,12 @@ ipcMain.on('show-debug', function (event) {
   const breaknumber = breakPlanner.breakNumber
   const postponesnumber = breakPlanner.postponesNumber
   const doNotDisturb = breakPlanner.dndManager.isOnDnd
-  const settingsFile = settings.path
-  const logsFile = log.transports.file.getFile().path
+  let settingsFile = settings.path
+  let logsFile = log.transports.file.getFile().path
+  if (process.windowsStore) {
+    settingsFile = settingsFile.replace('Roaming', 'Local\\Packages\\33881JanHovancik.stretchly_24fg4m0zq65je\\LocalCache\\Roaming')
+    logsFile = logsFile.replace('Roaming', 'Local\\Packages\\33881JanHovancik.stretchly_24fg4m0zq65je\\LocalCache\\Roaming')
+  }
   event.sender.send('debugInfo', reference, timeleft,
     breaknumber, postponesnumber, settingsFile, logsFile, doNotDisturb)
 })
@@ -1481,7 +1530,7 @@ ipcMain.on('set-contributor', function (event) {
   const dir = app.getPath('userData')
   const contributorStampFile = `${dir}/stamp`
   const { DateTime } = require('luxon')
-  require('fs').writeFile(contributorStampFile, DateTime.now().toString(), () => {})
+  require('fs').writeFile(contributorStampFile, DateTime.now().toString(), () => { })
   global.shared.isContributor = true
   log.info('Stretchly: Logged in. Thanks for your contributions!')
   if (preferencesWin) {
