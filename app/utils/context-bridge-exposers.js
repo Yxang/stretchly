@@ -95,7 +95,9 @@ function exposeStretchly () {
     openPreferences: () => ipcRenderer.send('open-preferences'),
     playSound: (name) => ipcRenderer.send('play-sound', name),
     showDebug: () => ipcRenderer.invoke('show-debug'),
-    updateTray: () => ipcRenderer.send('update-tray')
+    updateTray: () => ipcRenderer.send('update-tray'),
+    onShowQuotaToast: (callback) => ipcRenderer.on('show-quota-toast',
+      (_event, text, kind, silent, breakType) => callback(text, kind, silent, breakType))
   })
 }
 
@@ -122,6 +124,16 @@ function exposeUtils () {
   })
 }
 
+function exposeSoftReminder () {
+  contextBridge.exposeInMainWorld('softReminder', {
+    takeBreakNow: () => ipcRenderer.send('soft-reminder-action', 'takeNow'),
+    postponeTwoMin: () => ipcRenderer.send('soft-reminder-action', 'postpone'),
+    ignoreAndClose: () => ipcRenderer.send('soft-reminder-action', 'ignore'),
+    autoClose: () => ipcRenderer.send('soft-reminder-action', 'autoClose'),
+    getState: () => ipcRenderer.invoke('get-soft-reminder-data')
+  })
+}
+
 export {
   exposeElectronApi,
   exposeGlobal,
@@ -131,5 +143,6 @@ export {
   exposeSettings,
   exposeStretchly,
   exposeRuntime,
-  exposeUtils
+  exposeUtils,
+  exposeSoftReminder
 }

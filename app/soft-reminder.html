@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title data-i18next="quota.softReminder.title"></title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/color-scheme.css">
+    <link rel="stylesheet" type="text/css" href="css/commons.css">
+    <link rel="stylesheet" type="text/css" href="css/soft-reminder.css">
+  </head>
+  <body>
+    <div class="soft-reminder" id="soft-reminder">
+      <div class="soft-reminder-inner">
+        <div class="quota-bars">
+          <div class="quota-row">
+            <span class="quota-label" data-i18next="quota.softReminder.miniLabel"></span>
+            <progress class="quota-progress" id="mini-progress" max="100" value="100"></progress>
+            <span class="quota-pct" id="mini-pct">100%</span>
+          </div>
+          <div class="quota-row">
+            <span class="quota-label" data-i18next="quota.softReminder.longLabel"></span>
+            <progress class="quota-progress" id="long-progress" max="100" value="100"></progress>
+            <span class="quota-pct" id="long-pct">100%</span>
+          </div>
+        </div>
+        <hr class="soft-reminder-divider">
+        <div class="soft-reminder-actions">
+          <button class="btn-rest-now" id="btn-rest-now" data-i18next="quota.softReminder.restNow"></button>
+          <button class="btn-postpone" id="btn-postpone" data-i18next="quota.softReminder.postpone"></button>
+          <button class="btn-ignore" id="btn-ignore" data-i18next="quota.softReminder.ignore"></button>
+          <span class="countdown" id="countdown"></span>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="module" src="./soft-reminder-renderer.js"></script>
+</html>
