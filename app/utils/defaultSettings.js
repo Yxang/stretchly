@@ -83,5 +83,41 @@ export default {
   longBreakManualFinish: false,
   breakHealthMode: false,
   openAtLogin: false,
-  _migratedOpenAtLogin: false
+  _migratedOpenAtLogin: false,
+
+  // Quota scheduling fields (IF-3)
+  schedulingMode: 'classic',
+  quotaPreset: 'default',
+  miniBreakWorkWindowMs: 1500000,
+  longBreakWorkWindowMs: 7200000,
+  longBreakBonusToMini: 50,
+  ignoreCost: 5,
+  postponeCost: 10,
+  redPostponeMultiplier: 2,
+  tierGreenMin: 70,
+  tierYellowMin: 30,
+  tierOrangeMin: 10,
+  longBreakHardDeadlineMs: 7200000,
+  harassmentBaseIntervalMs: 600000,
+  harassmentMinIntervalMs: 30000,
+  softReminderPosition: 'bottomRight',
+  softReminderWidth: 360,
+  softReminderHeight: 200,
+  softReminderYellowIntervalMs: 300000,
+  softReminderOrangeIntervalMs: 120000,
+  softReminderAutoDismissMs: 90000,
+  greenTierToastMode: 'on-threshold-cross',
+  greenTierToastPeriodicMs: 1200000,
+  greenToastUnlockThreshold: 80,
+  tooltipTierPrefix: 'auto',
+  resetQuotaShortcut: '',
+
+  __quotaState__: {
+    miniQuota: 100,
+    longQuota: 100,
+    lastActiveTimestamp: 0,
+    lastLongBreakTimestamp: 0,
+    lastResetDate: '',
+    harassmentRejectCount: 0
+  }
 }
