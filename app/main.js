@@ -190,6 +190,11 @@ if (!gotTheLock) {
         log.info('Stretchly: open Preferences window (requested by second instance)')
         createPreferencesWindow()
         break
+
+      case 'reset-quota':
+        log.info('Stretchly: resetting quota (requested by second instance)')
+        resetQuota()
+        break
     }
   })
 }
@@ -451,7 +456,7 @@ async function initialize (isAppStart = true) {
     log,
     globalShortcut,
     breakPlanner,
-    functions: { pauseBreaks, resumeBreaks, skipToBreak, skipToMicrobreak, resetBreaks }
+    functions: { pauseBreaks, resumeBreaks, skipToBreak, skipToMicrobreak, resetBreaks, resetQuota }
   })
 
   updateTray()
@@ -1200,6 +1205,12 @@ function resetBreaks () {
   updateTray()
 }
 
+function resetQuota () {
+  if (!breakPlanner.quotaManager) return
+  breakPlanner.quotaManager.onManualReset()
+  log.info('Stretchly: quota manually reset')
+}
+
 function calculateBackgroundColor (color) {
   let opacityMultiplier = 1
   if (settings.get('transparentMode')) {
@@ -1461,6 +1472,14 @@ function getTrayMenuTemplate () {
       label: i18next.t('main.resetBreaks'),
       click: resetBreaks
     })
+
+    if (settings.get('schedulingMode') === 'quota' && breakPlanner.quotaManager) {
+      trayMenu.push({
+        label: i18next.t('quota.tray.resetQuota'),
+        accelerator: settings.get('resetQuotaShortcut') || null,
+        click: resetQuota
+      })
+    }
   }
 
   trayMenu.push({

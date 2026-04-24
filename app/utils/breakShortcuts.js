@@ -12,7 +12,8 @@ const shortcuts = {
   skipToNextScheduledBreakShortcut: null,
   skipToNextMiniBreakShortcut: null,
   skipToNextLongBreakShortcut: null,
-  resetBreaksShortcut: null
+  resetBreaksShortcut: null,
+  resetQuotaShortcut: null
 }
 
 function calculateInterval (name, settings) {
@@ -51,6 +52,10 @@ function onShortcut ({ name, settings, log, breakPlanner, functions }) {
     case 'resetBreaksShortcut':
       log.info('Stretchly: resetting breaks by shortcut')
       functions.resetBreaks()
+      break
+    case 'resetQuotaShortcut':
+      log.info('Stretchly: resetting quota by shortcut')
+      functions.resetQuota()
       break
     default: {
       const interval = calculateInterval(name, settings)

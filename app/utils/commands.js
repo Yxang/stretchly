@@ -67,6 +67,9 @@ const allCommands = {
   },
   preferences: {
     description: 'Open Preferences window'
+  },
+  'reset-quota': {
+    description: 'Reset quota to 100% (quota mode only)'
   }
 }
 
