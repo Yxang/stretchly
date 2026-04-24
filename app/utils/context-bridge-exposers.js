@@ -30,10 +30,11 @@ function exposeBreaks (type) {
   contextBridge.exposeInMainWorld('breaks', {
     sendBreakData: () => ipcRenderer.invoke(`send-${type}-break-data`),
     finishBreak: (manualAwaiting) => ipcRenderer.send(`finish-${type}-break`, false, manualAwaiting),
-    postponeBreak: () => ipcRenderer.send(`postpone-${type}-break`),
+    postponeBreak: (tier) => ipcRenderer.send(`postpone-${type}-break`, tier || null),
     signalLoaded: () => ipcRenderer.send(`${type}-break-loaded`),
     onEnterManualAwait: (callback) => ipcRenderer.on('enter-manual-await', (_e, which) => callback(which)),
-    sanitizeIdea: (value) => sanitizeIdea(value)
+    sanitizeIdea: (value) => sanitizeIdea(value),
+    getQuotaStatus: () => ipcRenderer.invoke('get-quota-status')
   })
 }
 
