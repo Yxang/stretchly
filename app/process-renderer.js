@@ -1,5 +1,7 @@
 import VersionChecker from './utils/versionChecker.js'
 
+const CLICKABLE_QUOTA_TOAST_KINDS = new Set(['orangeReminder', 'miniAvailable', 'longAvailable'])
+
 window.onload = async (e) => {
   window.stretchly.onPlaySound((file, volume) => {
     __electronLog.info(`Stretchly: playing audio/${file}.wav (volume: ${volume})`)
@@ -22,6 +24,28 @@ window.onload = async (e) => {
       silent,
       icon: '../build/icon.ico'
     })
+    setTimeout(() => notification.close(), 7000)
+  })
+
+  window.stretchly.onShowQuotaToast(async (text, kind, silent, breakType) => {
+    __electronLog.info(`Stretchly: showing quota toast kind=${kind} breakType=${breakType || '-'} (silent: ${silent})`)
+    const title = await window.utils.shouldShowNotificationTitle(
+      await window.runtime.platform(),
+      await window.runtime.getSystemVersion()
+    )
+      ? 'Stretchly'
+      : ''
+    const notification = new Notification(title, {
+      body: text,
+      silent,
+      icon: '../build/icon.ico'
+    })
+    if (CLICKABLE_QUOTA_TOAST_KINDS.has(kind)) {
+      notification.onclick = () => {
+        __electronLog.info(`Stretchly: quota toast clicked (kind=${kind}, breakType=${breakType || 'mini'})`)
+        window.stretchly.sendQuotaToastTakeNow(breakType || 'mini')
+      }
+    }
     setTimeout(() => notification.close(), 7000)
   })
 

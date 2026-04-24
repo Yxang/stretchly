@@ -1,7 +1,7 @@
 import HtmlTranslate from './utils/htmlTranslate.js'
 import './platform.js'
 
-const AUTO_CLOSE_SECONDS = 90
+const DEFAULT_AUTO_CLOSE_SECONDS = 90
 const POSTPONE_DEBOUNCE_MS = 500
 
 function getTierClass (quota) {
@@ -32,12 +32,16 @@ window.onload = async () => {
   const btnIgnore = document.getElementById('btn-ignore')
   const countdownEl = document.getElementById('countdown')
 
-  let countdownValue = AUTO_CLOSE_SECONDS
+  const state = await window.softReminder.getState()
+  const autoCloseSeconds = state && typeof state.autoDismissMs === 'number'
+    ? Math.max(1, Math.round(state.autoDismissMs / 1000))
+    : DEFAULT_AUTO_CLOSE_SECONDS
+
+  let countdownValue = autoCloseSeconds
   let countdownInterval = null
   let actionTaken = false
   let postponeDebouncing = false
 
-  const state = await window.softReminder.getState()
   if (state) {
     updateProgressBar(miniProgress, miniPct, state.miniQuota)
     updateProgressBar(longProgress, longPct, state.longQuota)

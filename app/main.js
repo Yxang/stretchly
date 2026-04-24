@@ -70,6 +70,9 @@ let welcomeWin = null
 let contributorPreferencesWin = null
 let syncPreferencesWin = null
 let myStretchlyWin = null
+let softReminderWin = null
+let softReminderState = null
+let softReminderActionHandled = false
 let settings
 let pausedForSuspendOrLock = false
 let nextIdea = null
@@ -337,6 +340,38 @@ async function initialize (isAppStart = true) {
     breakPlanner.on('updateToolTip', function () {
       updateTray()
     })
+    breakPlanner.on('startSoftReminder', (breakType, tier) => {
+      createSoftReminderWindow(breakType, tier)
+    })
+    breakPlanner.on('longBreakHardDeadline', () => {
+      log.info('Stretchly: long break hard deadline reached — entering harassment mode')
+      closeSoftReminderWindow()
+      skipToBreak(100)
+    })
+    // Tier transitions drive proactive OS toasts. Signature is forwarded from
+    // QuotaManager: (breakType, oldTier, newTier). See IF-7 / AC-5.
+    breakPlanner.on('tierChanged', (breakType, oldTier, newTier) => {
+      if (!breakPlanner.quotaManager) return
+      const qm = breakPlanner.quotaManager
+      const mini = typeof qm.getMiniQuota === 'function' ? Math.round(qm.getMiniQuota()) : 0
+      const long = typeof qm.getLongQuota === 'function' ? Math.round(qm.getLongQuota()) : 0
+      if (oldTier === 'green' && newTier !== 'green') {
+        showQuotaToast({
+          text: i18next.t('quota.toast.greenCross.body', { mini, long }),
+          kind: 'greenCross',
+          breakType
+        })
+      } else if (breakType === 'mini' && newTier === 'orange') {
+        showQuotaToast({
+          text: i18next.t('quota.toast.orangeReminder.body', { mini }),
+          kind: 'orangeReminder',
+          breakType
+        })
+      }
+    })
+    breakPlanner.on('quotaChanged', () => {
+      updateTray()
+    })
   } else {
     breakPlanner.clear()
     breakPlanner.appExclusionsManager.reinitialize(settings)
@@ -453,6 +488,7 @@ i18next.on('languageChanged', () => {
 
 function onSuspendOrLock () {
   log.info('System: suspend or lock')
+  breakPlanner.quotaManager?.freeze('powerSuspend')
   if (settings.get('pauseForSuspendOrLock')) {
     if (breakPlanner.isPaused || breakPlanner.dndManager.isOnDnd ||
       breakPlanner.naturalBreaksManager.isSchedulerCleared ||
@@ -470,6 +506,7 @@ function onSuspendOrLock () {
 
 function onResumeOrUnlock () {
   log.info('System: resume or unlock')
+  breakPlanner.quotaManager?.unfreeze('powerSuspend')
   if (pausedForSuspendOrLock) {
     pausedForSuspendOrLock = false
     resumeBreaks(false)
@@ -1482,12 +1519,239 @@ function showNotification (text) {
   )
 }
 
-ipcMain.on('postpone-mini-break', function (event) {
-  postponeMicrobreak()
+function isWaylandSession () {
+  return process.platform === 'linux' && process.env.XDG_SESSION_TYPE === 'wayland'
+}
+
+function getSoftReminderPlacement (winW, winH) {
+  const display = screen.getPrimaryDisplay()
+  const workArea = display.workArea
+  const position = settings.get('softReminderPosition') || 'bottomRight'
+  const margin = 16
+
+  if (isWaylandSession()) {
+    return {
+      x: Math.round(workArea.x + (workArea.width - winW) / 2),
+      y: Math.round(workArea.y + (workArea.height - winH) / 2),
+      centered: true
+    }
+  }
+
+  let x, y
+  switch (position) {
+    case 'topLeft':
+      x = workArea.x + margin
+      y = workArea.y + margin
+      break
+    case 'topRight':
+      x = workArea.x + workArea.width - winW - margin
+      y = workArea.y + margin
+      break
+    case 'bottomLeft':
+      x = workArea.x + margin
+      y = workArea.y + workArea.height - winH - margin
+      break
+    case 'bottomRight':
+    default:
+      x = workArea.x + workArea.width - winW - margin
+      y = workArea.y + workArea.height - winH - margin
+      break
+  }
+  return { x, y, centered: false }
+}
+
+function createSoftReminderWindow (breakType, tier) {
+  if (settings.get('schedulingMode') !== 'quota') {
+    log.warn('Stretchly: startSoftReminder received outside quota mode; ignoring')
+    return
+  }
+
+  if (softReminderWin && !softReminderWin.isDestroyed()) {
+    log.info('Stretchly: soft reminder window already open; skipping new instance')
+    return
+  }
+
+  const qm = breakPlanner.quotaManager
+  const miniQuota = qm && typeof qm.getMiniQuota === 'function' ? qm.getMiniQuota() : 100
+  const longQuota = qm && typeof qm.getLongQuota === 'function' ? qm.getLongQuota() : 100
+  const autoDismissMs = settings.get('softReminderAutoDismissMs') || 90000
+  const winW = settings.get('softReminderWidth') || 360
+  const winH = settings.get('softReminderHeight') || 200
+
+  softReminderState = {
+    breakType: breakType || 'mini',
+    tier: tier || 'yellow',
+    miniQuota,
+    longQuota,
+    mainColor: settings.get('mainColor'),
+    miniColor: settings.get('miniBreakColor'),
+    autoDismissMs
+  }
+  softReminderActionHandled = false
+
+  const placement = getSoftReminderPlacement(winW, winH)
+  log.info(`Stretchly: opening soft reminder window (breakType=${breakType}, tier=${tier}, placement=${placement.centered ? 'centered' : 'corner'})`)
+
+  const modalPath = 'file://' + join(__dirname, '/soft-reminder.html')
+  const windowOptions = {
+    width: winW,
+    height: winH,
+    x: placement.x,
+    y: placement.y,
+    show: false,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    movable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    focusable: process.platform === 'linux',
+    autoHideMenuBar: true,
+    backgroundColor: '#00000000',
+    hasShadow: false,
+    title: 'Stretchly',
+    icon: windowIconPath(),
+    webPreferences: {
+      preload: join(__dirname, './soft-reminder-preload.mjs'),
+      sandbox: false
+    }
+  }
+
+  softReminderWin = new BrowserWindow(windowOptions)
+  softReminderWin.setVisibleOnAllWorkspaces(true)
+  softReminderWin.setAlwaysOnTop(true, 'pop-up-menu')
+  softReminderWin.loadURL(modalPath)
+
+  softReminderWin.once('ready-to-show', () => {
+    if (!softReminderWin || softReminderWin.isDestroyed()) return
+    softReminderWin.showInactive()
+  })
+
+  softReminderWin.once('closed', () => {
+    softReminderWin = null
+    // Fallback: if the window closed without any action IPC fired, treat as
+    // ignore per IF-4. Idempotent via softReminderActionHandled flag.
+    if (!softReminderActionHandled && softReminderState) {
+      softReminderActionHandled = true
+      const breakTypeAtClose = softReminderState.breakType
+      log.info('Stretchly: soft reminder window closed without action; treating as ignore')
+      breakPlanner.emit('softReminderAction', 'ignore', breakTypeAtClose)
+    }
+    softReminderState = null
+  })
+
+  // Wayland fallback: concurrent OS toast (since window placement is lossy).
+  if (placement.centered) {
+    const toastText = i18next.exists('quota.toast.orangeReminder.body')
+      ? i18next.t('quota.toast.orangeReminder.body', { mini: Math.round(softReminderState.miniQuota) })
+      : 'Time for a break?'
+    showQuotaToast({ text: toastText, kind: 'orangeReminder', breakType: softReminderState.breakType })
+  }
+}
+
+function closeSoftReminderWindow () {
+  if (softReminderWin && !softReminderWin.isDestroyed()) {
+    // Mark handled so the `closed` listener does not re-trigger ignore logic.
+    softReminderActionHandled = true
+    softReminderWin.close()
+  }
+  softReminderWin = null
+  softReminderState = null
+}
+
+function showQuotaToast ({ text, kind, breakType }) {
+  if (!processWin || processWin.isDestroyed()) return
+  if (!text) return
+  const silent = settings.get('silentNotifications')
+  log.info(`Stretchly: showing quota toast kind=${kind} breakType=${breakType || '-'}`)
+  processWin.webContents.send('show-quota-toast', text, kind, silent, breakType || null)
+}
+
+ipcMain.handle('get-soft-reminder-data', (event) => {
+  if (!softReminderState) {
+    return {
+      breakType: 'mini',
+      tier: 'yellow',
+      miniQuota: 100,
+      longQuota: 100,
+      mainColor: settings.get('mainColor'),
+      miniColor: settings.get('miniBreakColor'),
+      autoDismissMs: settings.get('softReminderAutoDismissMs') || 90000
+    }
+  }
+  return { ...softReminderState }
 })
 
-ipcMain.on('postpone-long-break', function (event) {
+ipcMain.handle('get-quota-status', (event) => {
+  const schedulingMode = settings.get('schedulingMode') || 'classic'
+  if (schedulingMode !== 'quota' || !breakPlanner.quotaManager) {
+    return { schedulingMode: 'classic', tier: 'green', miniQuota: 100, longQuota: 100 }
+  }
+  const qm = breakPlanner.quotaManager
+  const url = event.sender.getURL() || ''
+  const breakType = url.includes('microbreak') ? 'mini' : 'long'
+  return {
+    schedulingMode: 'quota',
+    tier: qm.getTier(breakType),
+    miniQuota: qm.getMiniQuota(),
+    longQuota: qm.getLongQuota()
+  }
+})
+
+ipcMain.on('soft-reminder-action', (event, action) => {
+  if (softReminderActionHandled) {
+    log.info(`Stretchly: duplicate soft reminder action '${action}' ignored`)
+    return
+  }
+  softReminderActionHandled = true
+  const breakType = softReminderState ? softReminderState.breakType : 'mini'
+  log.info(`Stretchly: soft reminder action '${action}' for ${breakType}`)
+
+  if (action === 'takeNow') {
+    closeSoftReminderWindow()
+    if (breakType === 'long') {
+      skipToBreak(100)
+    } else {
+      skipToMicrobreak(100)
+    }
+    return
+  }
+
+  // postpone / ignore / autoClose: route through planner so quota deductions
+  // and rescheduling stay co-located in BreaksPlanner._handleSoftReminderAction.
+  breakPlanner.emit('softReminderAction', action, breakType)
+  closeSoftReminderWindow()
+  updateTray()
+})
+
+ipcMain.on('quota-toast-take-now', (event, breakType) => {
+  log.info(`Stretchly: quota toast clicked — skipping to ${breakType || 'mini'}`)
+  if (breakType === 'long') {
+    skipToBreak(100)
+  } else {
+    skipToMicrobreak(100)
+  }
+})
+
+// Red-tier full-screen break postpone (IF-6): 2× quota deduction routed here;
+// soft-reminder postpone flows through 'soft-reminder-action' → planner instead.
+ipcMain.on('postpone-mini-break', function (event, tier) {
+  postponeMicrobreak()
+  if (settings.get('schedulingMode') === 'quota' && breakPlanner.quotaManager && tier) {
+    breakPlanner.quotaManager.onBreakPostponed('mini', tier)
+  }
+})
+
+// Red-tier full-screen break postpone (IF-6): 2× quota deduction routed here;
+// soft-reminder postpone flows through 'soft-reminder-action' → planner instead.
+ipcMain.on('postpone-long-break', function (event, tier) {
   postponeBreak()
+  if (settings.get('schedulingMode') === 'quota' && breakPlanner.quotaManager && tier) {
+    breakPlanner.quotaManager.onBreakPostponed('long', tier)
+  }
 })
 
 ipcMain.on('finish-mini-break', function (event, shouldPlaySound, manualAwaiting) {

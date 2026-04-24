@@ -207,6 +207,7 @@
   },
   "quota": {
     "softReminder": {
+      "title": "Break reminder",
       "miniLabel": "Mini:",
       "longLabel": "Long:",
       "restNow": "Rest now",

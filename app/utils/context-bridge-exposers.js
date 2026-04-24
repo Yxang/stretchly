@@ -98,7 +98,8 @@ function exposeStretchly () {
     showDebug: () => ipcRenderer.invoke('show-debug'),
     updateTray: () => ipcRenderer.send('update-tray'),
     onShowQuotaToast: (callback) => ipcRenderer.on('show-quota-toast',
-      (_event, text, kind, silent, breakType) => callback(text, kind, silent, breakType))
+      (_event, text, kind, silent, breakType) => callback(text, kind, silent, breakType)),
+    sendQuotaToastTakeNow: (breakType) => ipcRenderer.send('quota-toast-take-now', breakType)
   })
 }
 
