@@ -698,4 +698,176 @@ describe('QuotaManager (T002/T003)', function () {
       state.should.have.property('harassmentRejectCount')
     })
   })
+
+  // ─────────────────────────────────────────────
+  // 15. Tier-threshold sanitize (AC 15.7) — hybrid-reset strategy
+  //
+  // Algorithm (PL final spec, hybrid-reset):
+  //   - Any raw value non-finite or ≤0 → whole group resets to defaults (70,30,10) [γ rule]
+  //   - All valid but order wrong → serial cascade: yellow=green-1 if yellow≥green,
+  //     then orange=yellow-1 if orange≥(corrected)yellow
+  //   - Cascade result orange≤0 → whole group resets to defaults
+  //   - Valid and ordered → no writes
+  //
+  // makeSettings uses a static mock for get(), so we verify sanitize behavior
+  // by inspecting settings.set() call arguments (what sanitize wrote to store).
+  // ─────────────────────────────────────────────
+  describe('_sanitizeTierThresholds (AC 15.7)', function () {
+    function getTierSetArg (settings, key) {
+      const call = vi.mocked(settings.set).mock.calls.find(([k]) => k === key)
+      return call ? call[1] : undefined
+    }
+
+    it('valid order (80,40,15): no tier keys written', function () {
+      const settings = makeSettings({
+        schedulingMode: 'quota',
+        tierGreenMin: 80,
+        tierYellowMin: 40,
+        tierOrangeMin: 15
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      const tierSetCalls = vi.mocked(settings.set).mock.calls.filter(
+        ([key]) => key === 'tierGreenMin' || key === 'tierYellowMin' || key === 'tierOrangeMin'
+      )
+      tierSetCalls.length.should.equal(0)
+    })
+
+    it('reversal (80,20,30): orange>yellow → cascade writes orange=19', function () {
+      const settings = makeSettings({
+        schedulingMode: 'quota',
+        tierGreenMin: 80,
+        tierYellowMin: 20,
+        tierOrangeMin: 30
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      // yellow(20) < green(80) — not clamped; if written must stay 20
+      const yellowWritten = getTierSetArg(settings, 'tierYellowMin')
+      ;(yellowWritten === undefined || yellowWritten === 20).should.equal(true)
+      getTierSetArg(settings, 'tierOrangeMin').should.equal(19)
+    })
+
+    it('reversal #3 (30,50,20): yellow>green → yellow=29; orange(20)<yellow(29) → orange stays 20', function () {
+      const settings = makeSettings({
+        schedulingMode: 'quota',
+        tierGreenMin: 30,
+        tierYellowMin: 50,
+        tierOrangeMin: 20
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      getTierSetArg(settings, 'tierYellowMin').should.equal(29)
+      // orange(20) < corrected yellow(29) — no cascade; if written must stay 20
+      const orangeWritten = getTierSetArg(settings, 'tierOrangeMin')
+      ;(orangeWritten === undefined || orangeWritten === 20).should.equal(true)
+    })
+
+    it('boundary: yellow=green (80,80,30) → yellow=79, orange(30)<yellow(79) stays 30', function () {
+      const settings = makeSettings({
+        schedulingMode: 'quota',
+        tierGreenMin: 80,
+        tierYellowMin: 80,
+        tierOrangeMin: 30
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      getTierSetArg(settings, 'tierYellowMin').should.equal(79)
+      // orange(30) < corrected yellow(79) — no cascade; if written must stay 30
+      const orangeWritten = getTierSetArg(settings, 'tierOrangeMin')
+      ;(orangeWritten === undefined || orangeWritten === 30).should.equal(true)
+    })
+
+    it('double reversal (80,90,95): yellow>green and orange>yellow → yellow=79, orange=78', function () {
+      const settings = makeSettings({
+        schedulingMode: 'quota',
+        tierGreenMin: 80,
+        tierYellowMin: 90,
+        tierOrangeMin: 95
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      getTierSetArg(settings, 'tierYellowMin').should.equal(79)
+      getTierSetArg(settings, 'tierOrangeMin').should.equal(78)
+    })
+
+    it('F1 invalid (NaN,-1,70): any raw non-finite/≤0 → whole group reset to (70,30,10)', function () {
+      const settings = makeSettings({
+        schedulingMode: 'quota',
+        tierGreenMin: NaN,
+        tierYellowMin: -1,
+        tierOrangeMin: 70
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      getTierSetArg(settings, 'tierGreenMin').should.equal(70)
+      getTierSetArg(settings, 'tierYellowMin').should.equal(30)
+      getTierSetArg(settings, 'tierOrangeMin').should.equal(10)
+    })
+
+    it('F2 cascade-to-zero (2,2,2): orange would be 0 → whole group reset to (70,30,10)', function () {
+      const settings = makeSettings({
+        schedulingMode: 'quota',
+        tierGreenMin: 2,
+        tierYellowMin: 2,
+        tierOrangeMin: 2
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      getTierSetArg(settings, 'tierGreenMin').should.equal(70)
+      getTierSetArg(settings, 'tierYellowMin').should.equal(30)
+      getTierSetArg(settings, 'tierOrangeMin').should.equal(10)
+    })
+
+    it('classic mode: sanitize does not write any tier key', function () {
+      const settings = makeSettings({
+        schedulingMode: 'classic',
+        tierGreenMin: 10,
+        tierYellowMin: 30,
+        tierOrangeMin: 70
+      })
+      const _qm = new QuotaManager(settings)
+      _qm.start()
+      _qm.settings.should.equal(settings)
+      const tierSetCalls = vi.mocked(settings.set).mock.calls.filter(
+        ([key]) => key === 'tierGreenMin' || key === 'tierYellowMin' || key === 'tierOrangeMin'
+      )
+      tierSetCalls.length.should.equal(0)
+    })
+
+    it('idempotent: second start with corrected values writes no tier keys', function () {
+      const store = {
+        schedulingMode: 'quota',
+        tierGreenMin: 10,
+        tierYellowMin: 30,
+        tierOrangeMin: 70
+      }
+      const settings = {
+        get: (key) => store[key],
+        set: vi.fn((key, val) => { store[key] = val })
+      }
+
+      const qmFirst = new QuotaManager(settings)
+      qmFirst.start()
+      const firstWrites = vi.mocked(settings.set).mock.calls.filter(
+        ([key]) => key === 'tierGreenMin' || key === 'tierYellowMin' || key === 'tierOrangeMin'
+      ).length
+      firstWrites.should.be.above(0)
+
+      vi.mocked(settings.set).mockClear()
+      const qmSecond = new QuotaManager(settings)
+      qmSecond.start()
+      const secondWrites = vi.mocked(settings.set).mock.calls.filter(
+        ([key]) => key === 'tierGreenMin' || key === 'tierYellowMin' || key === 'tierOrangeMin'
+      ).length
+      secondWrites.should.equal(0)
+    })
+  })
 })

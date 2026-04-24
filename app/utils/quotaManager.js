@@ -57,6 +57,7 @@ class QuotaManager extends EventEmitter {
   // Lifecycle
   // ─────────────────────────────────────────────
   start () {
+    this._sanitizeTierThresholds()
     const persisted = this._readPersistedState()
     const morningHour = this._getMorningHour()
     const now = Date.now()
@@ -484,6 +485,54 @@ class QuotaManager extends EventEmitter {
   _getTierOrangeMin () {
     const v = this.settings.get('tierOrangeMin')
     return (v === undefined || v === null) ? 10 : v
+  }
+
+  _sanitizeTierThresholds () {
+    if (this.settings.get('schedulingMode') !== 'quota') return
+
+    const gRaw = this.settings.get('tierGreenMin')
+    const yRaw = this.settings.get('tierYellowMin')
+    const oRaw = this.settings.get('tierOrangeMin')
+
+    const validRaw = Number.isFinite(gRaw) && gRaw > 0 &&
+                     Number.isFinite(yRaw) && yRaw > 0 &&
+                     Number.isFinite(oRaw) && oRaw > 0
+
+    if (!validRaw) {
+      this.settings.set('tierGreenMin', 70)
+      this.settings.set('tierYellowMin', 30)
+      this.settings.set('tierOrangeMin', 10)
+      if (this.log && typeof this.log.warn === 'function') {
+        this.log.warn(`Stretchly: tier thresholds invalid (${gRaw}/${yRaw}/${oRaw}), reset to defaults`)
+      }
+      return
+    }
+
+    let yellow = yRaw
+    let orange = oRaw
+
+    if (yellow >= gRaw) yellow = gRaw - 1
+    if (orange >= yellow) orange = yellow - 1
+
+    if (orange <= 0) {
+      this.settings.set('tierGreenMin', 70)
+      this.settings.set('tierYellowMin', 30)
+      this.settings.set('tierOrangeMin', 10)
+      if (this.log && typeof this.log.warn === 'function') {
+        this.log.warn(`Stretchly: tier thresholds cascade reached zero (${gRaw}/${yRaw}/${oRaw}), reset to defaults`)
+      }
+      return
+    }
+
+    const changed = yellow !== yRaw || orange !== oRaw
+    if (changed) {
+      this.settings.set('tierGreenMin', gRaw)
+      this.settings.set('tierYellowMin', yellow)
+      this.settings.set('tierOrangeMin', orange)
+      if (this.log && typeof this.log.warn === 'function') {
+        this.log.warn(`Stretchly: tier thresholds corrected (${gRaw}/${yRaw}/${oRaw} → ${gRaw}/${yellow}/${orange})`)
+      }
+    }
   }
 
   _getHardDeadlineMs () {

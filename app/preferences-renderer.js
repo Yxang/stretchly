@@ -68,6 +68,34 @@ function checkThresholdWarnings () {
   }
 }
 
+function updateTierOrderError () {
+  const green = parseInt(document.querySelector('#quotaYellowBelow').value) || 0
+  const yellow = parseInt(document.querySelector('#quotaOrangeBelow').value) || 0
+  const orange = parseInt(document.querySelector('#quotaRedBelow').value) || 0
+  const valid = green > yellow && yellow > orange && orange > 0
+  const errorMsg = document.querySelector('#tierOrderError')
+  const inputs = [
+    document.querySelector('#quotaYellowBelow'),
+    document.querySelector('#quotaOrangeBelow'),
+    document.querySelector('#quotaRedBelow')
+  ]
+  inputs.forEach(el => {
+    if (!el) return
+    if (!valid) {
+      el.classList.add('tier-threshold-error')
+    } else {
+      el.classList.remove('tier-threshold-error')
+    }
+  })
+  if (errorMsg) {
+    if (!valid) {
+      errorMsg.classList.remove('hidden')
+    } else {
+      errorMsg.classList.add('hidden')
+    }
+  }
+}
+
 window.onload = async (e) => {
   const bounds = await window.stretchly.getWindowBounds()
   const settings = await window.settings.currentSettings()
@@ -420,14 +448,21 @@ window.onload = async (e) => {
         range.addEventListener('change', () => {
           if (['tierGreenMin', 'tierYellowMin', 'tierOrangeMin'].includes(range.name)) {
             checkThresholdWarnings()
+            updateTierOrderError()
           }
           uncheckPresets()
         })
         range.addEventListener('input', () => {
           if (['tierGreenMin', 'tierYellowMin', 'tierOrangeMin'].includes(range.name)) {
             checkThresholdWarnings()
+            updateTierOrderError()
           }
         })
+        if (['tierGreenMin', 'tierYellowMin', 'tierOrangeMin'].includes(range.name)) {
+          range.addEventListener('blur', () => {
+            updateTierOrderError()
+          })
+        }
       })
     }
 
@@ -475,6 +510,7 @@ window.onload = async (e) => {
     }
 
     checkThresholdWarnings()
+    updateTierOrderError()
   }
 
   function syncQuotaAdvancedSliders () {

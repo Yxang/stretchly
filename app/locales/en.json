@@ -276,6 +276,9 @@
         "redNote": "Red tier = 2× deduction, automatic",
         "warnYellowGtOrange": "Yellow must be greater than Orange",
         "warnOrangeGtRed": "Orange must be greater than Red"
+      },
+      "errors": {
+        "tierOrder": "Tier thresholds must satisfy Green > Yellow > Orange > 0"
       }
     }
   },
