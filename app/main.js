@@ -558,6 +558,9 @@ function trayIconPath () {
     percentage: breakPlanner.progressPercentage,
     reference: breakPlanner.scheduler.reference
   }
+  if (settings.get('schedulingMode') === 'quota' && breakPlanner.quotaManager) {
+    params.percentage = Math.round(breakPlanner.quotaManager.getState().miniQuota)
+  }
   const trayIconFileName = new AppIcon(params).trayIconFileName
   const pathToTrayIcon = join(__dirname, '/images/app-icons/', trayIconFileName)
   return pathToTrayIcon

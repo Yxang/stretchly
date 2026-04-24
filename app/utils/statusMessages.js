@@ -1,7 +1,7 @@
 import { formatTimeIn } from './utils.js'
 
 class StatusMessages {
-  constructor ({ breakPlanner, settings, i18next, humanizeDuration }) {
+  constructor ({ breakPlanner, settings, i18next, humanizeDuration, quotaManager }) {
     this.reference = breakPlanner.scheduler.reference
     this.doNotDisturb = breakPlanner.dndManager.isOnDnd
     this.appExclusionPause = breakPlanner.appExclusionsManager.isSchedulerCleared
@@ -12,6 +12,7 @@ class StatusMessages {
     this.settings = settings
     this.i18next = i18next
     this.humanizeDuration = humanizeDuration
+    this.quotaManager = quotaManager || breakPlanner.quotaManager || null
   }
 
   get trayMessage () {
@@ -49,7 +50,7 @@ class StatusMessages {
     if (this.reference === 'startBreak' || this.reference === 'startBreakNotification') {
       message += this.i18next.t('statusMessages.nextLongBreak') + ' ' +
         formatTimeIn(this.timeToNextBreak, this.settings.get('language'), this.i18next, this.humanizeDuration)
-      return message
+      if (this.settings.get('schedulingMode') !== 'quota') return message
     }
 
     if (this.reference === 'startMicrobreak' || this.reference === 'startMicrobreakNotification') {
@@ -59,10 +60,30 @@ class StatusMessages {
         message += '\n' + this.i18next.t('statusMessages.nextLongBreak') + ' ' +
           this.i18next.t('statusMessages.afterMiniBreak', { count: breakInterval - breakNumber })
       }
-      return message
+      if (this.settings.get('schedulingMode') !== 'quota') return message
+    }
+
+    if (this.settings.get('schedulingMode') === 'quota' && this.quotaManager) {
+      const qm = this.quotaManager
+      const state = qm.getState()
+      const miniPct = Math.round(state.miniQuota)
+      const longPct = Math.round(state.longQuota)
+      const miniPrefix = this._tierPrefix(qm.getTier('mini'))
+      const longPrefix = this._tierPrefix(qm.getTier('long'))
+      const miniLine = miniPrefix + this.i18next.t('quota.tray.mini', { percent: miniPct })
+      const longLine = longPrefix + this.i18next.t('quota.tray.long', { percent: longPct })
+      message += (message ? '\n\n' : '') + miniLine + '\n' + longLine
     }
 
     return message
+  }
+
+  _tierPrefix (tier) {
+    const mode = this.settings.get('tooltipTierPrefix')
+    if (mode === 'never') return ''
+    if (mode === 'auto' && !this.settings.get('useMonochromeTrayIcon')) return ''
+    const letter = { green: 'G', yellow: 'Y', orange: 'O', red: 'R' }[tier] || ''
+    return letter ? `[${letter}] ` : ''
   }
 }
 
