@@ -18,3 +18,4 @@
 ### 2026-04-24
 
 - [009-20260424-1234-T009-merged.md](009-20260424-1234-T009-merged.md) — T009 合并到 dev（rebase + squash，无冲突，merge commit 8527599）
+- [010-20260424-1820-T002-merged.md](010-20260424-1820-T002-merged.md) — T002/T003 合并到 dev（QuotaManager 核心 + 测试桩，3 轮 CR 通过，64/64 测试，merge commit 74f59da）
