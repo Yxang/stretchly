@@ -147,6 +147,131 @@
     </div>
   </div>
   <div class="schedule hidden">
+    <div class="quota-scheduling-mode">
+      <span data-i18next="quota.preferences.schedulingMode"></span>
+    </div>
+    <div class="quota-scheduling-mode">
+      <input type="radio" value="classic" name="schedulingMode" id="schedulingModeClassic">
+      <label data-i18next="quota.preferences.classic" for="schedulingModeClassic"></label>
+      <input type="radio" value="quota" name="schedulingMode" id="schedulingModeQuota">
+      <label data-i18next="quota.preferences.quota" for="schedulingModeQuota"></label>
+    </div>
+    <div class="quota-section hidden">
+      <span data-i18next="quota.preferences.preset"></span>
+    </div>
+    <div class="quota-section hidden quota-preset-row">
+      <input type="radio" value="relaxed" name="quotaPreset" id="quotaPresetRelaxed">
+      <label for="quotaPresetRelaxed">
+        <strong data-i18next="quota.preferences.relaxed"></strong>
+        <span class="preset-desc" data-i18next="quota.preferences.relaxedDesc"></span>
+      </label>
+    </div>
+    <div class="quota-section hidden quota-preset-row">
+      <input type="radio" value="default" name="quotaPreset" id="quotaPresetDefault">
+      <label for="quotaPresetDefault">
+        <strong data-i18next="quota.preferences.default"></strong>
+        <span class="preset-desc" data-i18next="quota.preferences.defaultDesc"></span>
+      </label>
+    </div>
+    <div class="quota-section hidden quota-preset-row">
+      <input type="radio" value="strict" name="quotaPreset" id="quotaPresetStrict">
+      <label for="quotaPresetStrict">
+        <strong data-i18next="quota.preferences.strict"></strong>
+        <span class="preset-desc" data-i18next="quota.preferences.strictDesc"></span>
+      </label>
+    </div>
+    <div class="quota-section hidden quota-advanced-toggle">
+      <span class="quota-advanced-label">
+        <span data-i18next="quota.preferences.advanced.label"></span>
+        <span class="quota-advanced-arrow">&#9658;</span>
+      </span>
+    </div>
+    <div class="quota-advanced-content hidden">
+      <div class="quota-group-title" data-i18next="quota.preferences.advanced.workRestRatio"></div>
+      <hr class="quota-group-hr">
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.workCycle" for="quotaWorkCycle"></label>
+        <input type="range" min="5" max="120" step="5" name="miniBreakWorkWindowMs" data-divisor="60000" id="quotaWorkCycle">
+        <output data-unit="minutes"></output>
+      </div>
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.restDuration" for="quotaRestDuration"></label>
+        <input type="range" min="1" max="30" step="1" name="microbreakDuration" data-divisor="60000" id="quotaRestDuration" data-quota-only>
+        <output data-unit="minutes"></output>
+      </div>
+      <div class="quota-group-title" data-i18next="quota.preferences.advanced.alertThresholds"></div>
+      <hr class="quota-group-hr">
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.yellowBelow" for="quotaYellowBelow"></label>
+        <input type="range" min="1" max="99" step="1" name="tierGreenMin" data-divisor="1" id="quotaYellowBelow">
+        <output data-unit="percent"></output>
+        <div class="quota-warn-text hidden" id="warnYellowGtOrange" data-i18next="quota.preferences.advanced.warnYellowGtOrange"></div>
+      </div>
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.orangeBelow" for="quotaOrangeBelow"></label>
+        <input type="range" min="1" max="99" step="1" name="tierYellowMin" data-divisor="1" id="quotaOrangeBelow">
+        <output data-unit="percent"></output>
+        <div class="quota-warn-text hidden" id="warnOrangeGtRed" data-i18next="quota.preferences.advanced.warnOrangeGtRed"></div>
+      </div>
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.redBelow" for="quotaRedBelow"></label>
+        <input type="range" min="1" max="99" step="1" name="tierOrangeMin" data-divisor="1" id="quotaRedBelow">
+        <output data-unit="percent"></output>
+      </div>
+      <div class="quota-group-title" data-i18next="quota.preferences.advanced.alertBehavior"></div>
+      <hr class="quota-group-hr">
+      <div class="quota-advanced-row quota-green-tier-row">
+        <span data-i18next="quota.preferences.advanced.greenTier"></span>
+        <div class="quota-green-options">
+          <div>
+            <input type="radio" value="silent" name="greenTierToastMode" id="greenTierSilent">
+            <label data-i18next="quota.preferences.advanced.greenSilent" for="greenTierSilent"></label>
+          </div>
+          <div>
+            <input type="radio" value="on-threshold-cross" name="greenTierToastMode" id="greenTierThreshold">
+            <label data-i18next="quota.preferences.advanced.greenThreshold" for="greenTierThreshold"></label>
+          </div>
+          <div class="quota-green-periodic">
+            <input type="radio" value="periodic" name="greenTierToastMode" id="greenTierPeriodic">
+            <label data-i18next="quota.preferences.advanced.greenPeriodic" for="greenTierPeriodic"></label>
+            <span class="quota-periodic-input hidden">
+              <input type="range" min="5" max="60" step="5" name="greenTierToastPeriodicMs" data-divisor="60000" id="greenTierPeriodicMin">
+              <output data-unit="minutes"></output>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.yellowInterval" for="quotaYellowInterval"></label>
+        <input type="range" min="1" max="30" step="1" name="softReminderYellowIntervalMs" data-divisor="60000" id="quotaYellowInterval">
+        <output data-unit="minutes"></output>
+      </div>
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.orangeInterval" for="quotaOrangeInterval"></label>
+        <input type="range" min="1" max="15" step="1" name="softReminderOrangeIntervalMs" data-divisor="60000" id="quotaOrangeInterval">
+        <output data-unit="minutes"></output>
+      </div>
+      <div class="quota-group-title" data-i18next="quota.preferences.advanced.longDeadline"></div>
+      <hr class="quota-group-hr">
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.forceAfter" for="quotaForceAfter"></label>
+        <input type="range" min="30" max="480" step="30" name="longBreakHardDeadlineMs" data-divisor="60000" id="quotaForceAfter">
+        <output data-unit="minutes"></output>
+      </div>
+      <div class="quota-group-title" data-i18next="quota.preferences.advanced.postponePenalty"></div>
+      <hr class="quota-group-hr">
+      <div class="quota-advanced-row">
+        <label data-i18next="quota.preferences.advanced.postponeDeduction" for="quotaPostponeDeduction"></label>
+        <input type="range" min="1" max="50" step="1" name="postponeCost" data-divisor="1" id="quotaPostponeDeduction">
+        <output data-unit="percent"></output>
+      </div>
+      <div class="quota-advanced-row quota-red-note">
+        <span data-i18next="quota.preferences.advanced.redNote"></span>
+      </div>
+    </div>
+    <div class="quota-section hidden">
+      <hr />
+    </div>
     <div>
       <span data-i18next="preferences.schedule.miniBreaks">
       </span>
@@ -197,7 +322,7 @@
       </datalist>
       <output data-unit="minutes"></output>
     </div>
-    <div>
+    <div data-classic-only>
       <input type="checkbox" value="microbreakNotification" id="showNotificationBeforeMiniBreak">
       <label data-i18next="preferences.schedule.showNotificationBeforeMiniBreak"
         for="showNotificationBeforeMiniBreak"></label>
@@ -248,7 +373,7 @@
       </datalist>
       <output data-unit="minutes"></output>
     </div>
-    <div>
+    <div data-classic-only>
       <input type="checkbox" value="breakNotification" id="showNotificationBeforeLongBreak">
       <label data-i18next="preferences.schedule.showNotificationBeforeLongBreak"
         for="showNotificationBeforeLongBreak"></label>

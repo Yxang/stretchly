@@ -7,6 +7,67 @@ import './platform.js'
 const versionChecker = new VersionChecker()
 let eventsAttached = false
 
+const PRESETS = {
+  relaxed: { miniBreakWorkWindowMs: 1800000, microbreakDuration: 300000 },
+  default: { miniBreakWorkWindowMs: 1500000, microbreakDuration: 300000 },
+  strict: { miniBreakWorkWindowMs: 1200000, microbreakDuration: 300000 }
+}
+
+function applyPreset (name) {
+  if (!PRESETS[name]) return
+  const preset = PRESETS[name]
+  for (const [key, value] of Object.entries(preset)) {
+    window.settings.saveSettings(key, value)
+  }
+  window.settings.saveSettings('quotaPreset', name)
+}
+
+function updateQuotaVisibility (mode) {
+  const isQuota = mode === 'quota'
+  document.querySelectorAll('.quota-section').forEach(el => {
+    if (isQuota) {
+      el.classList.remove('hidden')
+    } else {
+      el.classList.add('hidden')
+    }
+  })
+  document.querySelectorAll('[data-classic-only]').forEach(el => {
+    if (isQuota) {
+      el.classList.add('hidden')
+    } else {
+      el.classList.remove('hidden')
+    }
+  })
+  const advancedContent = document.querySelector('.quota-advanced-content')
+  if (advancedContent && !isQuota) {
+    advancedContent.classList.add('hidden')
+    const arrow = document.querySelector('.quota-advanced-arrow')
+    if (arrow) arrow.innerHTML = '&#9658;'
+  }
+}
+
+function checkThresholdWarnings () {
+  const yellow = parseInt(document.querySelector('#quotaYellowBelow').value) || 0
+  const orange = parseInt(document.querySelector('#quotaOrangeBelow').value) || 0
+  const red = parseInt(document.querySelector('#quotaRedBelow').value) || 0
+  const warnYO = document.querySelector('#warnYellowGtOrange')
+  const warnOR = document.querySelector('#warnOrangeGtRed')
+  if (warnYO) {
+    if (yellow <= orange) {
+      warnYO.classList.remove('hidden')
+    } else {
+      warnYO.classList.add('hidden')
+    }
+  }
+  if (warnOR) {
+    if (orange <= red) {
+      warnOR.classList.remove('hidden')
+    } else {
+      warnOR.classList.add('hidden')
+    }
+  }
+}
+
 window.onload = async (e) => {
   const bounds = await window.stretchly.getWindowBounds()
   const settings = await window.settings.currentSettings()
@@ -253,6 +314,7 @@ window.onload = async (e) => {
   })
 
   setWindowHeight()
+  initQuotaUI(settings)
 
   document.querySelectorAll('.enabletype').forEach((element) => {
     element.onclick = async (event) => {
@@ -311,6 +373,130 @@ window.onload = async (e) => {
         console.error(exception)
         document.querySelector('.latestVersion').innerHTML = 'N/A'
       })
+  }
+
+  function initQuotaUI (settings) {
+    updateQuotaVisibility(settings.schedulingMode || 'classic')
+
+    const schedulingModeRadios = document.querySelectorAll('input[name="schedulingMode"]')
+    schedulingModeRadios.forEach(radio => {
+      radio.checked = (radio.value === (settings.schedulingMode || 'classic'))
+      radio.onchange = () => {
+        window.settings.saveSettings('schedulingMode', radio.value)
+        updateQuotaVisibility(radio.value)
+        setWindowHeight()
+      }
+    })
+
+    const presetRadios = document.querySelectorAll('input[name="quotaPreset"]')
+    presetRadios.forEach(radio => {
+      radio.checked = (radio.value === (settings.quotaPreset || 'default'))
+      radio.onchange = () => {
+        applyPreset(radio.value)
+        syncQuotaAdvancedSliders()
+      }
+    })
+
+    const advancedToggle = document.querySelector('.quota-advanced-toggle')
+    const advancedContent = document.querySelector('.quota-advanced-content')
+    const advancedArrow = document.querySelector('.quota-advanced-arrow')
+    if (advancedToggle && advancedContent) {
+      advancedToggle.style.cursor = 'pointer'
+      advancedToggle.onclick = () => {
+        const isHidden = advancedContent.classList.contains('hidden')
+        if (isHidden) {
+          advancedContent.classList.remove('hidden')
+          if (advancedArrow) advancedArrow.innerHTML = '&#9660;'
+        } else {
+          advancedContent.classList.add('hidden')
+          if (advancedArrow) advancedArrow.innerHTML = '&#9658;'
+        }
+        setWindowHeight()
+      }
+    }
+
+    if (advancedContent) {
+      advancedContent.querySelectorAll('input[type="range"]').forEach(range => {
+        range.addEventListener('change', () => {
+          if (['tierGreenMin', 'tierYellowMin', 'tierOrangeMin'].includes(range.name)) {
+            checkThresholdWarnings()
+          }
+          uncheckPresets()
+        })
+        range.addEventListener('input', () => {
+          if (['tierGreenMin', 'tierYellowMin', 'tierOrangeMin'].includes(range.name)) {
+            checkThresholdWarnings()
+          }
+        })
+      })
+    }
+
+    const greenTierRadios = document.querySelectorAll('input[name="greenTierToastMode"]')
+    const periodicInput = document.querySelector('.quota-periodic-input')
+    greenTierRadios.forEach(radio => {
+      radio.checked = (radio.value === (settings.greenTierToastMode || 'on-threshold-cross'))
+      radio.onchange = () => {
+        window.settings.saveSettings('greenTierToastMode', radio.value)
+        uncheckPresets()
+        if (periodicInput) {
+          if (radio.value === 'periodic') {
+            periodicInput.classList.remove('hidden')
+          } else {
+            periodicInput.classList.add('hidden')
+          }
+        }
+      }
+    })
+    if (periodicInput && settings.greenTierToastMode === 'periodic') {
+      periodicInput.classList.remove('hidden')
+    }
+
+    const periodicRange = document.querySelector('#greenTierPeriodicMin')
+    if (periodicRange) {
+      periodicRange.value = (settings.greenTierToastPeriodicMs || 1200000) / 60000
+      const periodicOutput = periodicRange.closest('span').querySelector('output')
+      if (periodicOutput) {
+        window.utils.formatUnitAndValue('minutes', periodicRange.value).then(v => {
+          periodicOutput.innerHTML = v
+        })
+      }
+      periodicRange.onchange = async event => {
+        if (periodicOutput) {
+          periodicOutput.innerHTML = await window.utils.formatUnitAndValue('minutes', periodicRange.value)
+        }
+        window.settings.saveSettings('greenTierToastPeriodicMs', periodicRange.value * 60000)
+        uncheckPresets()
+      }
+      periodicRange.oninput = async event => {
+        if (periodicOutput) {
+          periodicOutput.innerHTML = await window.utils.formatUnitAndValue('minutes', periodicRange.value)
+        }
+      }
+    }
+
+    checkThresholdWarnings()
+  }
+
+  function syncQuotaAdvancedSliders () {
+    const advancedContent = document.querySelector('.quota-advanced-content')
+    if (!advancedContent) return
+    window.settings.currentSettings().then(async fresh => {
+      const ranges = advancedContent.querySelectorAll('input[type="range"]')
+      for (const range of ranges) {
+        const divisor = range.dataset.divisor
+        const output = range.closest('div').querySelector('output')
+        range.value = fresh[range.name] / divisor
+        if (output) {
+          const unit = output.dataset.unit
+          output.innerHTML = await window.utils.formatUnitAndValue(unit, range.value)
+        }
+      }
+    })
+  }
+
+  function uncheckPresets () {
+    document.querySelectorAll('input[name="quotaPreset"]').forEach(r => { r.checked = false })
+    window.settings.saveSettings('quotaPreset', 'advanced')
   }
 
   function setWindowHeight () {
