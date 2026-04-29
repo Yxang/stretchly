@@ -280,6 +280,18 @@
       "errors": {
         "tierOrder": "Tier thresholds must satisfy Green > Yellow > Orange > 0"
       }
+    },
+    "help": {
+      "heading": "What is Quota Mode?",
+      "intro": "Quota Mode replaces fixed-interval breaks with a budget-based system. Instead of interrupting you every N minutes, Stretchly tracks break credit you've earned and spends it as you work.",
+      "howItWorks": "You start each day with 100% mini-break quota and 100% long-break quota. Working drains quota; taking breaks replenishes it. As quota drops, Stretchly escalates gently — from a silent tray indicator to a small corner reminder to more frequent nudges.",
+      "tiers": "Four alert tiers based on mini-break quota: Green (>70%) — silent, one OS notification when you first cross the threshold. Yellow (30–70%, inclusive) — a soft corner reminder every 5 min. Orange (10–30%, exclusive) — reminders every 2 min. Red (≤10%) — frequent nudges; postponing a break costs double quota.",
+      "presets": "Pick a preset to get started: Relaxed (30-min work cycle), Default (25 min), or Strict (20 min). All three share the same alert intervals and thresholds. Open Advanced to fine-tune any value.",
+      "restore": "Mini-breaks restore mini-break quota. Completing a long break restores long-break quota plus 50% of your mini-break quota — so you won't be immediately nudged for a mini-break right after a long rest.",
+      "freeze": "Quota is frozen while you're idle, in Do Not Disturb, or running an excluded app. Time away doesn't drain your budget.",
+      "longDeadline": "Regardless of quota level, if you haven't taken a long break in 120 minutes, Stretchly enters persistent-nudge mode — reminders fire at shrinking intervals until you rest. Long break done? Persistent nudging stops.",
+      "reset": "Reset quota to 100% anytime via Tray → Reset quota or your configured keyboard shortcut. Quota also resets automatically each morning at 06:00 (configurable).",
+      "howToEnable": "To enable: open Preferences → Scheduling → select Quota. Choose a preset (Relaxed / Default / Strict) or expand Advanced to fine-tune thresholds, intervals, and costs. Switch back to Classic at any time without losing your other settings."
     }
   },
   "statusMessages": {
