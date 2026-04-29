@@ -15,19 +15,22 @@
 ## 团队成员（常驻）
 | 名称 | 角色 | 模型 | 状态 |
 |------|------|------|------|
-| architect-2 | 架构师 | opus | 活跃（二次快检完成，等 PQ 结果分诊） |
+| architect-2 | 架构师 | opus | idle（T018 squashed @ d098d9d，等下一指令） |
 | product-lead-2 | Product Lead | sonnet | 活跃（PQ 第一轮 in_progress，47 AC + AC 15.6/15.7 最终 + 3 冒烟） |
-| ux-designer | UX Designer | sonnet | idle（UX-SPEC 已收敛） |
-| chronicler-2 | 追溯员 | haiku | idle（dev-log 021/022 + CHRONICLE + INDEX 写入完成） |
 
-## Per-task Agent（全部已 shutdown）
+## Per-task Agent
 | 名称 | 任务 | 状态 |
 |------|------|------|
+| dev-T018 | #18 Quota help UI 实现（f388948） | terminated 2026-04-29T08:47Z |
+| cr-T018 | #18 CR ACCEPT @ f388948 | terminated 2026-04-29T08:47Z |
+| tech-qa-T018 | #18 PASS（404/404 + 4 grep + lint） | terminated 2026-04-29T08:47Z |
 | dev-hotfix-ac15.7 | #13 hotfix 实现（路径 B γ fb9a3e3） | terminated 2026-04-24T13:10Z |
 | tech-qa-hotfix-ac15.7 | #13 测试（684cf8c 73/73 γ） | terminated 2026-04-24T13:10Z |
 | code-reviewer-hotfix-ac15.7 | CR 路径 B ACCEPT | terminated 2026-04-24T13:10Z |
 | merger-hotfix-ac15.7 | #15 squash 到 dev（8ce7a0a） | terminated 2026-04-24T13:18Z |
 | dev-T008 (stray, Batch 5 遗留) | — | terminated 2026-04-24T13:11Z |
+| ux-designer | UX 规格定稿 | shutdown 2026-04-29 |
+| chronicler-2 | dev-log 021/022 + CHRONICLE + INDEX | shutdown 2026-04-29 |
 
 ## 已合并任务（Batch 1–5 + hotfix）
 - T001 defaultSettings schema
@@ -41,6 +44,8 @@
 - T008 tray quota tooltip + progress 图标复用（dev HEAD 12504bd）
 - T010 reset-quota tray menu + shortcut + CLI（dev HEAD 7c35e65）
 - **AC 15.6/15.7 hotfix（路径 B γ Y-locked）**：`_sanitizeTierThresholds` all-or-nothing + cascade clamp + inline UI warning（dev HEAD **8ce7a0a**）
+- **v1.21 docs close-out + Quota Mode user help**（dev HEAD **5bf9fb3**）
+- **T018 Quota tab help UI**：preferences.html `<details>` 折叠区 + 10 段 quota.help.* i18n 渲染（dev HEAD **d098d9d**）
 
 ## 当前进度
 - [x] Planning 阶段完成（PLANNING.md / ACCEPTANCE.md / UX-SPEC.md 三文档定稿）
@@ -51,8 +56,10 @@
 - [x] 集成 checklist 代码层 9/12 自动 PASS（grep/lint/test 证据见任务 #11）
 - [x] AC 15.7 hotfix 合并（Task #14/#15，dev HEAD 8ce7a0a，架构师二次快检 73/73 quota + 404/404 全项目）
 - [x] dev-log 022 记录（chronicler-2 完整迭代轨 + 12 条 LESSONS 候选）
-- [ ] PQ 第一轮（#5 in_progress，47 AC + AC 15.6/15.7 最终 + #7 classic 回归 + #9 软提醒键盘 + #10 N/A macOS）
-- [ ] Phase 6 close-out（PQ 通过 → PLANNING「当前状态」 + Checkpoint + LESSONS v1.23 十二条候选评审）
+- [x] PQ 第一轮 agent 侧 47 AC L1+L2 全 PASS（PL 确认 product-qa-1/2 + 1-2/2-2 已收尾）
+- [ ] T018 smoke（PL 直验 4 项 grep + L4 18.1 追加，等汇报中）
+- [ ] L4 用户手动 smoke（#7 classic 回归 / #9 软提醒键盘 Tab/Enter/Esc / #10 N/A macOS）
+- [ ] Phase 6 close-out（T018 smoke 通过 → PLANNING「当前状态」 + Checkpoint + LESSONS v1.23 十二条候选评审）
 
 ## 待你处理（被动等待）
 - product-lead-2 PQ kickoff ack / PQ 第一轮进度汇报 / PQ 通过确认

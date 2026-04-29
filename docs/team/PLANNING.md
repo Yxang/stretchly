@@ -618,7 +618,7 @@ npm run pack
 
 ## 当前状态
 
-**v1.21 Phase 6 完成**（2026-04-24 21:30 更新）。所有任务 + AC 15.7 hotfix 合并到 dev，PQ 第一轮全通过，进入 close-out。
+**v1.21 Phase 6 完成**（2026-04-29 更新）。所有任务 + AC 15.7 hotfix + close-out docs + T018 help UI 合并到 dev，PQ 第一轮 + T018 smoke 全通过。
 
 ### 已合并到 dev（全量）
 
@@ -635,8 +635,10 @@ npm run pack
 | T008 | `12504bd` | 托盘 quota tooltip + progress 图标复用 |
 | T010 | `7c35e65` | reset-quota tray menu + shortcut + CLI |
 | Hotfix AC 15.7 | `8ce7a0a` | QuotaManager `_sanitizeTierThresholds()` all-or-nothing γ + cascade clamp |
+| Close-out docs | `5bf9fb3` | docs(v1.21) close-out + Quota Mode user help（README + en.json + knowledge） |
+| T018 | `d098d9d` | Quota tab help UI（preferences.html `<details>` 折叠 + preferences.css） |
 
-**dev HEAD = `8ce7a0a`**
+**dev HEAD = `d098d9d`**
 
 ### Phase 6 close-out 验证状态
 
@@ -644,6 +646,7 @@ npm run pack
 - **PQ 第一轮**：47 AC + AC 15.6 + AC 15.7 全通过（PL 已确认）
 - **全项目测试**：`npx vitest run test/` → 404/404 tests PASS（7 文件 Electron binary 启动失败为环境问题，与 AC 无关）
 - **ACCEPTANCE.md:457 文案** revise 已落地（PL 主导）
+- **T018 smoke PASS**（PL 4 项 grep + AC 18.3 L4 写入 ACCEPTANCE.md 功能 18 + 人工验证手册步骤 4/5）
 
 ### 跨 Phase 遗留（下一版本或 L4 用户自测时处理）
 
@@ -660,7 +663,7 @@ npm run pack
 
 ### Phase 6 未解决问题 → 无
 
-Phase 6 完成，无技术债务转入下一 Phase。合并基线：dev 分支 **`8ce7a0a`**。下一版本开始前先 rebase 此 HEAD。
+Phase 6 完成，无技术债务转入下一 Phase。合并基线：dev 分支 **`d098d9d`**。下一版本开始前先 rebase 此 HEAD。
 
 ---
 

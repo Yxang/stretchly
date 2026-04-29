@@ -521,14 +521,17 @@
 |---|---------|---------|-------|------|
 | 18.1 | 经典模式下 preferences 中不存在 quota 相关 UI 元素（通过代码条件渲染，非仅 CSS 隐藏） | 手动验证 | L4 | — |
 | 18.2 | 经典模式下托盘菜单中不存在「重置 quota」条目 | 手动验证 | L4 | — |
+| 18.3 | 打开 Preferences → Quota 模式激活时，顶部出现可折叠 help 区（默认展开），内含 10 段英文文案（What is Quota Mode / How it works / Tiers / Presets / Restore / Freeze / Long deadline / Reset / How to enable）；切换回 Classic 后 help 区消失 | 手动验证 | L4 | — |
 
-**人工验证手册**（L4 条目 18.1–18.2）：
+**人工验证手册**（L4 条目 18.1–18.3）：
 
 1. 确认当前为经典模式
 2. 打开 preferences，浏览所有区块，确认无 quota 相关 UI（无 preset 单选、无 quota 阈值参数、无高级折叠）
 3. 右键托盘图标，确认菜单中无「重置 quota」条目
+4. 切换为 Quota 模式，打开 preferences，确认顶部出现可折叠 help 区（默认展开），点击展开/折叠正常，10 段文案可见
+5. 切回 Classic 模式，确认 help 区消失
 
-**预期表现**：经典模式下 UI 完全干净，与 v1.20.0 视觉一致。
+**预期表现**：经典模式下 UI 完全干净，与 v1.20.0 视觉一致；Quota 模式下 help 区正常折叠/展开。
 
 **本功能不包含**：对条件渲染逻辑的 DOM 层级测试。
 
