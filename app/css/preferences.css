@@ -544,3 +544,14 @@ body[dir=rtl] .heart > .authenticate > a {
   padding-right: 0;
   padding-left: 20px;
 }
+
+.quota-help summary {
+  cursor: pointer;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.quota-help-body p {
+  margin: 6px 0;
+  line-height: 1.5;
+}
