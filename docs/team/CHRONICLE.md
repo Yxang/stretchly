@@ -31,6 +31,7 @@
 | 日期 | 任务 | 开发 | 审查者 | 结果 | 备注 |
 |------|------|------|--------|------|------|
 | 2026-05-06 | T-201 | dev-t201 | cr-t201 | 通过 | 变更最小（app/css/preferences.css 一行），符合 IF-4 契约；AC 1.1 满足；无返工；等 headed 截图验证（AC 1.2/1.3），commit 387fcec |
+| 2026-05-06 | T-202 | dev-t202 | cr-t202 | 通过 | i18next 参数对齐（app/soft-reminder-renderer.js 1 行 + test/softReminder.js 反向断言），509/509 PASS，lint PASS，无 AUTO-FIX，commit e098835 |
 
 ### 测试结果
 
@@ -89,7 +90,7 @@
 | 任务 | 功能 | 优先级 | QA 阶段 | 当前状态 | 备注 |
 |------|------|--------|---------|---------|------|
 | T-201 | Bug 1 CSS：quota help 区竖条排版修复 | P0 | post | CR PASS（387fcec） | 等 headed 截图验证（AC 1.2/1.3）后进入合并 |
-| T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P0 | atdd | 开发完成 | 进行中：tech-qa 全量+headed 验证 |
+| T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P0 | atdd | CR PASS（e098835） | tech-qa 全量+headed 验证已完成，准备合并 |
 | T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | atdd | 开发完成 | 进行中：tech-qa 全量+headed 验证（5 不变量重点） |
 | T-204 | Bug 2 advanced 区排版（调研型） | P1 | post | blockedBy T-201 | 等 T-201 合并后启动 |
 | T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P2 | post | pending | 独立任务，后续启动 |
