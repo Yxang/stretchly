@@ -53,6 +53,7 @@
 | 日期 | 发现者 | 描述 | 严重程度 | 在范围内 | 处理方式 | 状态 |
 |------|--------|------|---------|---------|---------|------|
 | 2026-05-07 | 架构师（审计） | tech-qa-t202 worktree 边界违规：在主仓库执行 headed 验证，造成 app/soft-reminder-renderer.js 污染 + 临时脚本 + 截图归档位置错误 | 中等 | 是 | tech-qa-t202 清理主仓库，dev-t202 force-push 截图到分支，加固 tech-qa spawn prompt 明确 worktree 隔离规则 | 已修正，T-202/T-203 内容无影响 |
+| 2026-05-07 | tech-qa-t203（验证）、architect（确认） | 技术约束：Claude Code agent shell 无 display 访问（screencapture exit 1，capturePage 超时），沙盒结构性限制；T-202 截图成功系越权副作用（在主仓库获得 host 终端 display）；无法在 agent 内自动截图，需降级为文本+日志+静态分析证据 | 高 | 否（plan 阶段设计限制） | T-202 option A 不可重复；T-203+ 采用 option B 文本证据；v1.23+ plan §9 改为「证据标准」并声明形式；写入 CONSTITUTION.md | 已适应，v1.22 无影响 |
 
 ---
 
