@@ -32,3 +32,4 @@
 
 | File | Tags | Summary | Source | Updated | Importance | Last Referenced | Superseded |
 |------|------|---------|--------|---------|------------|-----------------|------------|
+| tech-qa-post-cleanup-evidence-flow.md | `qa` `worktree` `process` `git-workflow` | Tech-QA worktree 清理后补充证据的正确流程：不直推 dev，改为 dev-log 体系补充 | 版本事件 v1.22 dev-log 041 | 2026-05-07 | 4 | — | — |
