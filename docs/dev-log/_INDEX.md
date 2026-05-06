@@ -47,3 +47,4 @@
 ### 2026-05-07
 
 - [032-20260507-0015-T201-merged.md](032-20260507-0015-T201-merged.md) — T-201 squash merge 到 dev（f8bd31f，app/css/preferences.css grid-column 选择器扩展，AC 1.1/1.2/1.3 全过，cleanup f9b359e，branch 及 worktree 已清理，T-204 now unblocked）
+- [033-20260507-0030-tech-qa-worktree-boundary-violation.md](033-20260507-0030-tech-qa-worktree-boundary-violation.md) — 治理：tech-qa-t202 worktree 边界违规事件（在主仓库执行 headed，造成污染），已修正，spawn prompt 加固 worktree 隔离规则，T-202/T-203 内容无影响
