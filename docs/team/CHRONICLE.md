@@ -58,7 +58,10 @@
 
 | 日期 | 决策 | 决策者 | 权限类型 | 理由 | 影响范围 |
 |------|------|--------|---------|------|---------|
-| | | | | | |
+| 2026-05-06 | Bug 4 选项 3：break-window 不强制关闭，沿用 v1.21 | 架构师 + Product Lead | 产品 | 与产品设计一致，保留用户自主权 | T-204（break-renderer.js、BreaksPlanner） |
+| 2026-05-06 | 工具链标准化：screencapture + osascript + capturePage 三轨方案 | 架构师 | 技术 | 覆盖多种 QA 场景；否决 playwright-electron | Tech-QA 截图、dev-log/screenshots/ |
+| 2026-05-06 | Bug 2 范围收敛：i18n 移出，保留 CSS 排版修复 | 架构师 | 技术 | grep 验证 0 处硬编码英文，由 CSS 问题引起 | T-203（soft-reminder-renderer.js）工作量 -30% |
+| 2026-05-06 | zh-CN L4 gate：不通过直接打回，无 known-issue 豁免 | Product Lead | 产品 | zh-CN 一级支持语言，质量标准不可降级 | Phase 6 PQ 验收、hotfix 决策 |
 
 ---
 
@@ -70,13 +73,25 @@
 
 ---
 
-## 开发进度概览
+## 版本进度
 
-### Batch 6（v1.22 5-bug 修复 + PQ 流程升级）
+### Phase 3-5 Milestone（2026-05-06）
 
-| 任务 | 状态 | 更新时间 |
-|------|------|--------|
-| 待分配 | - | - |
+| 阶段 | 事件 | 状态 |
+|------|------|------|
+| Phase 3 | PLANNING.md 定稿（10 节，§2 含 4 项偏差 ACK）；ACCEPTANCE.md 定稿（27 AC） | ✓ 完成 |
+| Phase 4 | 跳过（沿用 v1.21 固定团队） | ✓ 完成 |
+| Phase 5 | TaskList 创建 T-201..T-205；T-204 blockedBy T-201 | ✓ 完成 |
+
+### Batch 1（v1.22 5-bug 修复 + PQ 流程升级）
+
+| 任务 | 功能 | 优先级 | 状态 |
+|------|------|--------|------|
+| T-201 | Bug 1 CSS：quota help 区竖条排版修复 | P0 | pending |
+| T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P1 | pending |
+| T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | pending |
+| T-204 | Bug 2 advanced 区排版（调研型） | P1 | blockedBy T-201 |
+| T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P1 | pending |
 
 ---
 
@@ -85,8 +100,12 @@
 - **版本**：v1.22
 - **主题**：Quota Mode 功能完善 + 5-bug 修复 + PQ 流程升级
 - **启动日期**：2026-05-06
+- **最后更新**：2026-05-06 20:02（Phase 3-5 完成）
 - **截图归档**：`docs/dev-log/screenshots/T<NNN>-<short>.png`
   - P0 bug 修复必备 before/after 截图（参考 plan §8 第 5 项）
   - Tech-QA headed 测试截图存档于此
+- **重要约束**：
+  - L4 验收门槛：zh-CN 不通过直接打回，无 known-issue 豁免
+  - 工具链：screencapture + osascript + capturePage 三轨方案（否决 playwright-electron）
 
 ---

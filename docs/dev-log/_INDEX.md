@@ -32,3 +32,10 @@
 - [021-20260424-1420-hotfix-ac15.7-qa-pass.md](021-20260424-1420-hotfix-ac15.7-qa-pass.md) — AC 15.7 hotfix 技术 QA 流水账（72/72 tests fd2f1e4 暂缓结案，最终验证待 Leader rerun，memo 归档失败历史 + 策略三次变动）
 - [022-20260424-1300-hotfix-ac15.7-pathB-gamma-merged.md](022-20260424-1300-hotfix-ac15.7-pathB-gamma-merged.md) — AC 15.7 hotfix 完整迭代轨：Path A β 作废 → Path B γ-locked 合并（12 步事实轨 + 规格演化 + 12 条 LESSONS v1.23 候选，merge commit 8ce7a0a）
 - [023-20260424-1500-Phase6-closeout-start.md](023-20260424-1500-Phase6-closeout-start.md) — Phase 6 Close-out 启动：PQ 第一轮通过 + 三路并行评审（技术 zone 9 条 + 产品 zone 3 条 LESSONS + CONSTITUTION/knowledge 检查）
+
+### 2026-05-06
+
+- [024-20260506-1930-v1.22-chronicler-init.md](024-20260506-1930-v1.22-chronicler-init.md) — v1.22 追溯体系初始化：CHRONICLE.md 空白记录册 + dev-log 编号续接 + screenshots/ 目录建立
+- [025-20260506-2000-Phase3-planning-acceptance-finalized.md](025-20260506-2000-Phase3-planning-acceptance-finalized.md) — Phase 3 评估完成：PLANNING.md 定稿（10 节，§2 含 4 项偏差 ACK）、ACCEPTANCE.md 定稿（27 AC，L1-4 分级）
+- [026-20260506-2001-Phase5-tasklist-created.md](026-20260506-2001-Phase5-tasklist-created.md) — Phase 5 完成：TaskList 创建 T-201..T-205，T-204 blockedBy T-201（Bug 4 热重建依赖 Bug 1 修复）
+- [027-20260506-2002-Phase3-4-critical-decisions.md](027-20260506-2002-Phase3-4-critical-decisions.md) — Phase 3-5 关键决策（4 项）：Bug 4 选项 3 沿用 v1.21、工具链三轨方案、Bug 2 范围收敛 CSS、zh-CN L4 gate 严格模式
