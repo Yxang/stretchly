@@ -15,8 +15,8 @@
 ## 团队成员（常驻）
 | 名称 | 角色 | 模型 | 状态 |
 |------|------|------|------|
-| architect-2 | 架构师 | opus | idle（T018 squashed @ d098d9d，等下一指令） |
-| product-lead-2 | Product Lead | sonnet | 活跃（PQ 第一轮 in_progress，47 AC + AC 15.6/15.7 最终 + 3 冒烟） |
+| architect-2 | 架构师 | opus | shutdown 2026-04-29T10:02Z（v1.21 团队侧完结） |
+| product-lead-2 | Product Lead | sonnet | shutdown 2026-04-29T10:02Z（v1.21 团队侧完结） |
 
 ## Per-task Agent
 | 名称 | 任务 | 状态 |
