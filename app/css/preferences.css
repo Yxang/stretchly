@@ -92,7 +92,7 @@ body > div > :last-child {
   padding-top: 86px;
 }
 
-.schedule > div {
+.schedule > div, .schedule > details {
   grid-column: 2/-2;
 }
 
