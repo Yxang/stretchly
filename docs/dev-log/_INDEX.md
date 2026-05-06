@@ -53,3 +53,4 @@
 - [036-20260507-0146-T203-merged.md](036-20260507-0146-T203-merged.md) — T-203 squash merge 到 dev（025e69c，app/breaksPlanner.js IF-1 emit 契约，app/main.js IF-2 handler+listener，test 5 ATDD + 2 静态断言，AC 2.1-2.7 全过，文本+日志+静态分析三段式证据方案 B，branch 及 worktree 已清理）
 - [037-20260507-0147-batch1-close-out.md](037-20260507-0147-batch1-close-out.md) — Batch 1 Close-out：3 任务 8 小时完成（2026-05-06 18:00～01:46），15/15 AC 全过，f8bd31f→a0d05e9→025e69c，worktree 违规＋no-display 约束发现闭环，证据形式演进方案 A→B，team 并行流程成熟度确认
 - [038-20260507-0200-T204-tech-qa-pass.md](038-20260507-0200-T204-tech-qa-pass.md) — T-204 技术 QA 通过（523/523 PASS，27 文件 +7 CSS 回归测试，:nth-child 选择器修复，AC 4.1/4.2/4.3 全过，文本证据方案，commit 5ccedd0，等待 CR）
+- [039-20260507-0210-T205-tech-qa-pass.md](039-20260507-0210-T205-tech-qa-pass.md) — T-205 技术 QA 通过（516/516 PASS，63 keys 补译，JSON 合法 + 覆盖 100% + 占位符 8/8 + CDP 实测加载，AC 6.1-6.5 全过，commit d7cd6a7 + be0333b，等待 CR）
