@@ -30,7 +30,7 @@
 
 | 日期 | 任务 | 开发 | 审查者 | 结果 | 备注 |
 |------|------|------|--------|------|------|
-| | | | | | |
+| 2026-05-06 | T-201 | dev-t201 | cr-t201 | 通过 | 变更最小（app/css/preferences.css 一行），符合 IF-4 契约；AC 1.1 满足；无返工；等 headed 截图验证（AC 1.2/1.3），commit 387fcec |
 
 ### 测试结果
 
@@ -62,6 +62,7 @@
 | 2026-05-06 | 工具链标准化：screencapture + osascript + capturePage 三轨方案 | 架构师 | 技术 | 覆盖多种 QA 场景；否决 playwright-electron | Tech-QA 截图、dev-log/screenshots/ |
 | 2026-05-06 | Bug 2 范围收敛：i18n 移出，保留 CSS 排版修复 | 架构师 | 技术 | grep 验证 0 处硬编码英文，由 CSS 问题引起 | T-203（soft-reminder-renderer.js）工作量 -30% |
 | 2026-05-06 | zh-CN L4 gate：不通过直接打回，无 known-issue 豁免 | Product Lead | 产品 | zh-CN 一级支持语言，质量标准不可降级 | Phase 6 PQ 验收、hotfix 决策 |
+| 2026-05-06 | F-301 PQ 升级：Electron binary 复用方案 | 架构师 | 运维 | worktree 并行开发时避免 binary 重复下载（600MB × N），通过 ELECTRON_OVERRIDE_DIST_PATH=/Users/yxang/GitMine/stretchly/node_modules/electron/dist 指向主仓库共享副本 | v1.22 全 Batch 1 worktrees；预期避免 5-10 分钟重复下载 |
 
 ---
 
@@ -85,13 +86,13 @@
 
 ### Batch 1（v1.22 5-bug 修复 + PQ 流程升级）
 
-| 任务 | 功能 | 优先级 | 状态 |
-|------|------|--------|------|
-| T-201 | Bug 1 CSS：quota help 区竖条排版修复 | P0 | pending |
-| T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P1 | pending |
-| T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | pending |
-| T-204 | Bug 2 advanced 区排版（调研型） | P1 | blockedBy T-201 |
-| T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P1 | pending |
+| 任务 | 功能 | 优先级 | QA 阶段 | 当前状态 | 备注 |
+|------|------|--------|---------|---------|------|
+| T-201 | Bug 1 CSS：quota help 区竖条排版修复 | P0 | post | CR PASS（387fcec） | 等 headed 截图验证（AC 1.2/1.3）后进入合并 |
+| T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P0 | atdd | 开发完成 | 进行中：tech-qa 全量+headed 验证 |
+| T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | atdd | 开发完成 | 进行中：tech-qa 全量+headed 验证（5 不变量重点） |
+| T-204 | Bug 2 advanced 区排版（调研型） | P1 | post | blockedBy T-201 | 等 T-201 合并后启动 |
+| T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P2 | post | pending | 独立任务，后续启动 |
 
 ---
 
