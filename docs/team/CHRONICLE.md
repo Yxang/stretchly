@@ -45,6 +45,7 @@
 |------|------|------|--------|------|
 | 2026-05-07 | fix/T201/quota-help-css | dev-t201 | merger | squash merge f8bd31f；app/css/preferences.css grid-column 选择器扩展；AC 1.1/1.2/1.3 全过；cleanup f9b359e；branch + worktree 已清理；T-201 completed |
 | 2026-05-07 | fix/T202/soft-reminder-i18n | dev-t202 | merger | squash merge a0d05e9；app/soft-reminder-renderer.js { seconds }→{ count: seconds }；test/softReminder.js 4 用例全过；AC 3.1-3.5 全过；流程纠正 dev-log 033 已完成；screenshot commit 529c621 并入；branch + worktree 已清理；T-202 completed |
+| 2026-05-07 | fix/T203/planner-mode-hot-reload | dev-t203 | merger | squash merge 025e69c；app/breaksPlanner.js setSchedulingMode emit 契约 IF-1；app/main.js save-setting + schedulingModeChanged listener 契约 IF-2；test 5 ATDD 用例 + 2 静态断言；AC 2.1-2.7 全过；文本+日志+静态分析三段式证据（dev-log 035 agent no-display 方案）；branch + worktree 已清理；Batch 1 completed |
 
 ---
 
@@ -93,9 +94,17 @@
 |------|------|--------|---------|---------|------|
 | T-201 | Bug 1 CSS：quota help 区竖条排版修复 | P0 | post | ✓ 已合并（f8bd31f） | AC 1.1/1.2/1.3 全过；T-204 now unblocked |
 | T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P0 | atdd | ✓ 已合并（a0d05e9） | AC 3.1-3.5 全过；流程纠正完成（dev-log 033）；T-203 可全力推进 |
-| T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | atdd | 开发完成 | 进行中：tech-qa 全量+headed 验证（5 不变量重点） |
+| T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | atdd | ✓ 已合并（025e69c） | AC 2.1-2.7 全过；文本+日志+静态分析证据（dev-log 035 方案 B）；Batch 1 完成 |
 | T-204 | Bug 2 advanced 区排版（调研型） | P1 | post | 可启动 | T-201 已合并，障碍已清除，可进入开发 |
 | T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P2 | post | pending | 独立任务，后续启动 |
+
+**Batch 1 总结**（dev-log 037）
+- 时间跨度：2026-05-06 18:00 ～ 2026-05-07 01:46（~8h）
+- 完成率：3/3（T-201✓ T-202✓ T-203✓）
+- AC 通过：15/15（1.1-1.3 + 3.1-3.5 + 2.1-2.7）
+- 合并 commits：f8bd31f → a0d05e9 → 025e69c
+- 流程发现：worktree 边界违规（dev-log 033）、agent shell no-display（dev-log 035）
+- 证据形式演进：方案 A（视觉截图）→ 方案 B（文本+日志+静态分析）
 
 ---
 
