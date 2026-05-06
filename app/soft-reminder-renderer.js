@@ -52,7 +52,7 @@ window.onload = async () => {
   }, 16)
 
   async function getCountdownText (seconds) {
-    return window.i18next.t('quota.softReminder.closingIn', { seconds })
+    return window.i18next.t('quota.softReminder.closingIn', { count: seconds })
   }
 
   function clearCountdown () {
