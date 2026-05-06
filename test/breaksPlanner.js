@@ -713,3 +713,109 @@ describe('BreaksPlanner — edge cases (T004/T005)', function () {
     postponeCallCount.should.equal(0)
   })
 })
+
+// ─────────────────────────────────────────────
+// 10. schedulingModeChanged event (v1.22 T-203 ATDD stubs)
+// These tests are EXPECTED TO FAIL until dev-t203 implements
+// `emit('schedulingModeChanged', { mode, oldMode })` in setSchedulingMode.
+// ─────────────────────────────────────────────
+describe('BreaksPlanner — schedulingModeChanged event (v1.22 T-203)', function () {
+  beforeEach(function () {
+    vi.useFakeTimers({ now: new Date('2026-04-21T09:00:00').valueOf() })
+  })
+
+  afterEach(function () {
+    vi.useRealTimers()
+    vi.restoreAllMocks()
+  })
+
+  // Case 1: classic → quota emits event once with correct payload
+  it('emit schedulingModeChanged once when classic → quota', function () {
+    const settings = makeClassicSettings()
+    const planner = new BreaksPlanner(settings)
+    const calls = []
+    planner.on('schedulingModeChanged', (payload) => calls.push(payload))
+    planner.setSchedulingMode('quota')
+    calls.length.should.equal(1)
+    calls[0].mode.should.equal('quota')
+    calls[0].oldMode.should.equal('classic')
+  })
+
+  // Case 2: quota → classic emits event once with correct payload
+  it('emit schedulingModeChanged once when quota → classic', function () {
+    const settings = makeQuotaSettings()
+    const planner = new BreaksPlanner(settings)
+    const calls = []
+    planner.on('schedulingModeChanged', (payload) => calls.push(payload))
+    planner.setSchedulingMode('classic')
+    calls.length.should.equal(1)
+    calls[0].mode.should.equal('classic')
+    calls[0].oldMode.should.equal('quota')
+  })
+
+  // Case 3: same mode call must NOT emit
+  it('do not emit schedulingModeChanged when mode is unchanged (quota → quota)', function () {
+    const settings = makeQuotaSettings()
+    const planner = new BreaksPlanner(settings)
+    let count = 0
+    planner.on('schedulingModeChanged', () => count++)
+    planner.setSchedulingMode('quota')
+    count.should.equal(0)
+  })
+
+  // Case 4: active break during mode switch — 5 invariants (AC 2.6)
+  // Active break: scheduler.reference === 'startMicrobreakNotification' (break in progress)
+  it('active break during mode switch: 5 invariants all hold', function () {
+    const settings = makeQuotaSettings()
+    const planner = new BreaksPlanner(settings)
+    const qm = makeQuotaManagerMock()
+    planner._quotaManager = qm
+    // Simulate an active break by setting scheduler.reference directly
+    planner.scheduler = { reference: 'startMicrobreakNotification', start: vi.fn(), stop: vi.fn() }
+    const refBefore = planner.scheduler.reference
+
+    const emitCalls = []
+    planner.on('schedulingModeChanged', (payload) => emitCalls.push(payload))
+
+    planner.setSchedulingMode('classic')
+
+    // Invariant 1: scheduler.reference not changed (active break not interrupted)
+    planner.scheduler.reference.should.equal(refBefore)
+    // Invariant 2: schedulingMode updated immediately
+    planner.schedulingMode.should.equal('classic')
+    // Invariant 3: quotaManager is null immediately (quota → classic)
+    ;(planner.quotaManager === null || planner.quotaManager === undefined).should.equal(true)
+    // Invariant 4: schedulingModeChanged was emitted
+    emitCalls.length.should.equal(1)
+    // Invariant 5: deadlineScheduler not installed (no _ensureDeadlineScheduler during active break)
+    ;(planner.deadlineScheduler === null || planner.deadlineScheduler === undefined).should.equal(true)
+  })
+
+  // Case 5: quota callback guard — after switching to classic, quota callbacks return early
+  it('quota path callbacks are safe after switching to classic (guard check)', function () {
+    const settings = makeQuotaSettings()
+    const planner = new BreaksPlanner(settings)
+    const qm = makeQuotaManagerMock()
+    planner._quotaManager = qm
+
+    // Switch to classic first
+    planner.setSchedulingMode('classic')
+
+    // After switching, quotaManager should be null
+    ;(planner.quotaManager === null || planner.quotaManager === undefined).should.equal(true)
+    // schedulingMode is classic
+    planner.schedulingMode.should.equal('classic')
+    // Calling _handleSoftReminderAction (if accessible) should not throw when qm is null.
+    // The guard `if (this.schedulingMode !== 'quota' || !this._quotaManager) return` protects it.
+    // We verify the guard condition holds (not throwing is sufficient evidence).
+    let threw = false
+    try {
+      if (typeof planner._handleSoftReminderAction === 'function') {
+        planner._handleSoftReminderAction('dismiss')
+      }
+    } catch (e) {
+      threw = true
+    }
+    threw.should.equal(false)
+  })
+})

@@ -272,6 +272,7 @@ class BreaksPlanner extends EventEmitter {
   setSchedulingMode (mode) {
     if (mode !== 'classic' && mode !== 'quota') return
     if (mode === this.schedulingMode) return
+    const oldMode = this.schedulingMode
 
     if (mode === 'classic') {
       // Tear down quota-specific state but do not disturb an active break.
@@ -295,6 +296,8 @@ class BreaksPlanner extends EventEmitter {
         this._ensureDeadlineScheduler()
       }
     }
+
+    this.emit('schedulingModeChanged', { mode, oldMode })
   }
 
   // ─────────────────────────────────────────────

@@ -377,6 +377,10 @@ async function initialize (isAppStart = true) {
     breakPlanner.on('quotaChanged', () => {
       updateTray()
     })
+    breakPlanner.on('schedulingModeChanged', ({ mode, oldMode }) => {
+      log.info(`Stretchly: scheduling mode changed ${oldMode} → ${mode}`)
+      updateTray()
+    })
   } else {
     breakPlanner.clear()
     breakPlanner.appExclusionsManager.reinitialize(settings)
@@ -1838,6 +1842,10 @@ ipcMain.on('save-setting', function (event, key, value) {
   if (key === 'breakHealthMode' && !value) {
     danger = 0
     log.info('Stretchly: danger reset after disabling breakHealthMode')
+  }
+
+  if (key === 'schedulingMode') {
+    breakPlanner.setSchedulingMode(value)
   }
 
   settings.set(key, value)
