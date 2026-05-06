@@ -52,3 +52,4 @@
 - [035-20260507-0100-agent-shell-no-display-limitation.md](035-20260507-0100-agent-shell-no-display-limitation.md) — 技术约束发现：Claude Code agent shell 无 display 访问（screencapture/capturePage 均失败），沙盒结构性限制；T-202 截图成功系越权副作用；降级为文本+日志+静态分析证据；v1.23+ plan 需改为「证据标准」并前置声明；无视觉截图能力非 bug 而是架构约束
 - [036-20260507-0146-T203-merged.md](036-20260507-0146-T203-merged.md) — T-203 squash merge 到 dev（025e69c，app/breaksPlanner.js IF-1 emit 契约，app/main.js IF-2 handler+listener，test 5 ATDD + 2 静态断言，AC 2.1-2.7 全过，文本+日志+静态分析三段式证据方案 B，branch 及 worktree 已清理）
 - [037-20260507-0147-batch1-close-out.md](037-20260507-0147-batch1-close-out.md) — Batch 1 Close-out：3 任务 8 小时完成（2026-05-06 18:00～01:46），15/15 AC 全过，f8bd31f→a0d05e9→025e69c，worktree 违规＋no-display 约束发现闭环，证据形式演进方案 A→B，team 并行流程成熟度确认
+- [038-20260507-0200-T204-tech-qa-pass.md](038-20260507-0200-T204-tech-qa-pass.md) — T-204 技术 QA 通过（523/523 PASS，27 文件 +7 CSS 回归测试，:nth-child 选择器修复，AC 4.1/4.2/4.3 全过，文本证据方案，commit 5ccedd0，等待 CR）

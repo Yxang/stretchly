@@ -38,6 +38,7 @@
 | 日期 | 任务 | QA | 运行数 | 通过 | 失败 | 备注 |
 |------|------|----|-------|------|------|------|
 | 2026-05-06 | T-201 | tech-qa-T201 | 459 | 459 | 0 | CSS 选择器扩展 + computed style CDP 验证 + before/after 截图（commit 1d77455）；lint PASS；AC 1.1/1.2/1.3 all pass；等待 CR |
+| 2026-05-07 | T-204 | tech-qa-T204 | 523 | 523 | 0 | :nth-child 选择器 CSS 排版（27 文件，+7 新增回归测试）；文本+日志+静态分析三段式证据；AC 4.1/4.2/4.3 all pass；commit 5ccedd0；等待 CR |
 
 ### 合并到 dev
 
