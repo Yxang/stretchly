@@ -202,6 +202,95 @@
     "openPreferences": "打开偏好设置",
     "getStarted": "开始"
   },
+  "quota": {
+    "tray": {
+      "mini": "小憩：{{percent}}%",
+      "long": "休息：{{percent}}%",
+      "resetQuota": "重置配额"
+    },
+    "softReminder": {
+      "title": "休息提醒",
+      "restNow": "立即休息",
+      "postpone": "+2 分钟",
+      "ignore": "忽略",
+      "miniLabel": "小憩：",
+      "longLabel": "休息：",
+      "closingIn": "{{count}} 秒后关闭"
+    },
+    "toast": {
+      "greenCross": {
+        "title": "提示 — 配额下降",
+        "body": "小憩：{{mini}}% / 休息：{{long}}% — 是时候稍作放松了"
+      },
+      "orangeReminder": {
+        "title": "休息提醒",
+        "body": "小憩配额：{{mini}}% — 点击立即休息"
+      },
+      "longAvailable": {
+        "title": "可以休息了",
+        "body": "休息配额偏低 — 点击开始休息"
+      }
+    },
+    "hardDeadline": {
+      "title": "超时未休息",
+      "body": "您已连续工作 {{minutes}} 分钟未休息 — 现在开始休息吧"
+    },
+    "redPostponeWarning": {
+      "title": "红色档 — 延后将扣减 {{cost}}%",
+      "body": "配额告急，此次延后将扣减 {{cost}}%。"
+    },
+    "help": {
+      "heading": "什么是配额模式？",
+      "intro": "配额模式以预算机制取代固定间隔休息。Stretchly 不再每隔 N 分钟强制打断您，而是追踪您积累的休息额度并随工作消耗。",
+      "howItWorks": "每天开始时，小憩配额和休息配额均为 100%。工作会消耗配额；休息会补充配额。随着配额下降，Stretchly 的提醒会逐步升级——从安静的通知栏指示，到角落软提醒，再到更频繁的提示。",
+      "tiers": "提醒分为四个档位，基于小憩配额：绿色（>70%）— 静默，首次跨越阈值时推送一条系统通知。黄色（30–70%，含端点）— 每 5 分钟显示一次角落软提醒。橙色（10–30%，不含端点）— 每 2 分钟提醒一次。红色（≤10%）— 频繁提示；延后休息将扣双倍配额。",
+      "restore": "小憩补充小憩配额。完成一次休息将恢复休息配额，同时补充 50% 的小憩配额——确保长休后不会立即被小憩提醒打扰。",
+      "freeze": "处于闲置、勿扰模式或运行排除应用期间，配额将冻结。离开期间不会消耗配额。",
+      "longDeadline": "无论配额高低，若您超过 120 分钟未进行休息，Stretchly 将进入持续提醒模式——提醒间隔不断缩短，直到您休息为止。完成休息后，持续提醒停止。",
+      "reset": "随时可通过「通知栏 → 重置配额」或已配置的键盘快捷键将配额重置为 100%。配额也会在每天早上 06:00（可配置）自动重置。",
+      "howToEnable": "启用方法：打开偏好设置 → 计划 → 选择「配额」。选择一个预设（宽松 / 默认 / 严格），或展开「高级」以精细调整阈值、间隔和扣减量。随时切换回经典模式，其他设置不受影响。",
+      "presets": "选择预设快速开始：宽松（30 分工作周期）、默认（25 分）或严格（20 分）。三种预设共享相同的提醒间隔和阈值。展开「高级」可单独调整任意参数。"
+    },
+    "preferences": {
+      "schedulingMode": "调度模式",
+      "classic": "经典",
+      "quota": "配额",
+      "preset": "预设",
+      "relaxed": "宽松",
+      "relaxedDesc": "工作 30 分 → 休息 5 分",
+      "default": "默认",
+      "defaultDesc": "工作 25 分 → 休息 5 分",
+      "strict": "严格",
+      "strictDesc": "工作 20 分 → 休息 5 分",
+      "errors": {
+        "tierOrder": "档位阈值须满足：绿色 > 黄色 > 橙色 > 0"
+      },
+      "advanced": {
+        "label": "高级",
+        "workRestRatio": "工作/休息比率",
+        "workCycle": "工作周期（x）",
+        "restDuration": "休息时长（y）",
+        "longDeadline": "休息截止时限",
+        "forceAfter": "强制休息时限",
+        "alertThresholds": "提醒阈值",
+        "yellowBelow": "黄色提醒低于",
+        "orangeBelow": "橙色提醒低于",
+        "redBelow": "红色提醒低于",
+        "alertBehavior": "提醒行为",
+        "greenTier": "绿色档行为",
+        "greenSilent": "静默（仅通知栏变色）",
+        "greenThreshold": "跨越阈值时提醒（默认）",
+        "greenPeriodic": "定期提醒，间隔",
+        "yellowInterval": "黄色档间隔",
+        "orangeInterval": "橙色档间隔",
+        "postponeDeduction": "延后扣减量",
+        "postponePenalty": "延后代价",
+        "redNote": "红色档延后自动按 2 倍扣减",
+        "warnYellowGtOrange": "黄色阈值须大于橙色",
+        "warnOrangeGtRed": "橙色阈值须大于红色"
+      }
+    }
+  },
   "statusMessages": {
     "paused": "已暂停",
     "indefinitely": "无限期",

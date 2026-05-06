@@ -1,0 +1,114 @@
+T-205 zh-CN quota.* Coverage Evidence
+Date: 2026-05-07
+Branch: fix/T205/zh-cn-quota-i18n
+Commit: d7cd6a7 feat(i18n-zh-CN): translate quota namespace (T-205)
+Worktree: /Users/yxang/GitMine/stretchly/worktrees/T205
+
+=== CHECK 1: JSON Validity ===
+Command: node -e "JSON.parse(require('fs').readFileSync('app/locales/zh-CN.json'))"
+Result: JSON VALID
+STATUS: PASS
+
+=== CHECK 2: Coverage (en.json vs zh-CN.json quota.* keys) ===
+en.json quota.* key count:    63
+zh-CN.json quota.* key count: 63
+Missing keys: NONE
+Extra keys:   NONE
+STATUS: PASS (100% coverage, 0 missing)
+
+Full key list verified (63 keys):
+  quota.softReminder.title
+  quota.softReminder.miniLabel
+  quota.softReminder.longLabel
+  quota.softReminder.restNow
+  quota.softReminder.postpone
+  quota.softReminder.ignore
+  quota.softReminder.closingIn
+  quota.tray.mini
+  quota.tray.long
+  quota.tray.resetQuota
+  quota.toast.greenCross.title
+  quota.toast.greenCross.body
+  quota.toast.orangeReminder.title
+  quota.toast.orangeReminder.body
+  quota.toast.longAvailable.title
+  quota.toast.longAvailable.body
+  quota.hardDeadline.title
+  quota.hardDeadline.body
+  quota.redPostponeWarning.title
+  quota.redPostponeWarning.body
+  quota.preferences.schedulingMode
+  quota.preferences.classic
+  quota.preferences.quota
+  quota.preferences.preset
+  quota.preferences.relaxed
+  quota.preferences.relaxedDesc
+  quota.preferences.default
+  quota.preferences.defaultDesc
+  quota.preferences.strict
+  quota.preferences.strictDesc
+  quota.preferences.advanced.label
+  quota.preferences.advanced.workRestRatio
+  quota.preferences.advanced.workCycle
+  quota.preferences.advanced.restDuration
+  quota.preferences.advanced.alertThresholds
+  quota.preferences.advanced.yellowBelow
+  quota.preferences.advanced.orangeBelow
+  quota.preferences.advanced.redBelow
+  quota.preferences.advanced.alertBehavior
+  quota.preferences.advanced.greenTier
+  quota.preferences.advanced.greenSilent
+  quota.preferences.advanced.greenThreshold
+  quota.preferences.advanced.greenPeriodic
+  quota.preferences.advanced.yellowInterval
+  quota.preferences.advanced.orangeInterval
+  quota.preferences.advanced.longDeadline
+  quota.preferences.advanced.forceAfter
+  quota.preferences.advanced.postponePenalty
+  quota.preferences.advanced.postponeDeduction
+  quota.preferences.advanced.redNote
+  quota.preferences.advanced.warnYellowGtOrange
+  quota.preferences.advanced.warnOrangeGtRed
+  quota.preferences.errors.tierOrder
+  quota.help.heading
+  quota.help.intro
+  quota.help.howItWorks
+  quota.help.tiers
+  quota.help.presets
+  quota.help.restore
+  quota.help.freeze
+  quota.help.longDeadline
+  quota.help.reset
+  quota.help.howToEnable
+
+=== CHECK 3: Placeholder Preservation ===
+8 keys contain i18next interpolation placeholders.
+All verified present in zh-CN.json:
+
+  PASS  quota.softReminder.closingIn  | en: {{count}}      | zh: {{count}}
+  PASS  quota.tray.mini               | en: {{percent}}    | zh: {{percent}}
+  PASS  quota.tray.long               | en: {{percent}}    | zh: {{percent}}
+  PASS  quota.toast.greenCross.body   | en: {{long}},{{mini}} | zh: {{long}},{{mini}}
+  PASS  quota.toast.orangeReminder.body | en: {{mini}}     | zh: {{mini}}
+  PASS  quota.hardDeadline.body       | en: {{minutes}}    | zh: {{minutes}}
+  PASS  quota.redPostponeWarning.title| en: {{cost}}       | zh: {{cost}}
+  PASS  quota.redPostponeWarning.body | en: {{cost}}       | zh: {{cost}}
+
+STATUS: PASS (8/8 placeholders preserved)
+
+=== CHECK 4: Diff Scope ===
+Files changed vs dev branch:
+  app/locales/zh-CN.json      <- expected (translation only)
+  docs/dev-log/036-*.md       <- docs (chronicler, no code)
+  docs/dev-log/037-*.md       <- docs (chronicler, no code)
+  docs/dev-log/_INDEX.md      <- docs (index, no code)
+  docs/team/CHRONICLE.md      <- docs (chronicle, no code)
+
+No other source files modified.
+STATUS: PASS (scope limited to zh-CN.json + docs)
+
+=== CHECK 5: Vitest Full Regression ===
+Command: npx vitest run --reporter=verbose
+Result: Test Files 26 passed (26) / Tests 516 passed (516)
+Duration: 17.78s
+STATUS: PASS (516/516)
