@@ -48,6 +48,8 @@
 | 2026-05-07 | fix/T201/quota-help-css | dev-t201 | merger | squash merge f8bd31f；app/css/preferences.css grid-column 选择器扩展；AC 1.1/1.2/1.3 全过；cleanup f9b359e；branch + worktree 已清理；T-201 completed |
 | 2026-05-07 | fix/T202/soft-reminder-i18n | dev-t202 | merger | squash merge a0d05e9；app/soft-reminder-renderer.js { seconds }→{ count: seconds }；test/softReminder.js 4 用例全过；AC 3.1-3.5 全过；流程纠正 dev-log 033 已完成；screenshot commit 529c621 并入；branch + worktree 已清理；T-202 completed |
 | 2026-05-07 | fix/T203/planner-mode-hot-reload | dev-t203 | merger | squash merge 025e69c；app/breaksPlanner.js setSchedulingMode emit 契约 IF-1；app/main.js save-setting + schedulingModeChanged listener 契约 IF-2；test 5 ATDD 用例 + 2 静态断言；AC 2.1-2.7 全过；文本+日志+静态分析三段式证据（dev-log 035 agent no-display 方案）；branch + worktree 已清理；Batch 1 completed |
+| 2026-05-07 | fix/T205/zh-cn-quota-i18n | dev-t205 | architect | squash merge 1699ba8；app/locales/zh-CN.json 63 keys 全量补译；JSON 合法 + 覆盖 100% + 占位符 8/8 保留；AC 6.1-6.5 全过；PL L4 final sign-off；branch + worktree 已清理；Batch 2 完成；注：dev-log 041 记录 tech-qa-t205 boundary 违规（commit 268e493 + revert 3f921cd）已修正 |
+| 2026-05-07 | fix/T204/advanced-layout | dev-t204 | architect | squash merge b0e6605；app/css/preferences.css :nth-child 选择器扩展（6 行 diff）；+7 CSS 回归测试；AC 4.1-4.3 全过；T-201 级联回归 PASS；branch + worktree 已清理；Batch 2 全部完成（T-205 + T-204） |
 
 ---
 
@@ -90,15 +92,15 @@
 | Phase 4 | 跳过（沿用 v1.21 固定团队） | ✓ 完成 |
 | Phase 5 | TaskList 创建 T-201..T-205；T-204 blockedBy T-201 | ✓ 完成 |
 
-### Batch 1（v1.22 5-bug 修复 + PQ 流程升级）
+### Batch 1 + Batch 2（v1.22 5-bug 修复 + PQ 流程升级）
 
 | 任务 | 功能 | 优先级 | QA 阶段 | 当前状态 | 备注 |
 |------|------|--------|---------|---------|------|
 | T-201 | Bug 1 CSS：quota help 区竖条排版修复 | P0 | post | ✓ 已合并（f8bd31f） | AC 1.1/1.2/1.3 全过；T-204 now unblocked |
 | T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P0 | atdd | ✓ 已合并（a0d05e9） | AC 3.1-3.5 全过；流程纠正完成（dev-log 033）；T-203 可全力推进 |
 | T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | atdd | ✓ 已合并（025e69c） | AC 2.1-2.7 全过；文本+日志+静态分析证据（dev-log 035 方案 B）；Batch 1 完成 |
-| T-204 | Bug 2 advanced 区排版（调研型） | P1 | post | 可启动 | T-201 已合并，障碍已清除，可进入开发 |
-| T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P2 | post | pending | 独立任务，后续启动 |
+| T-204 | Bug 2 advanced 区排版（调研型） | P1 | post | ✓ 已合并（b0e6605） | AC 4.1-4.3 全过；T-201 级联回归 PASS；Batch 2 完成 |
+| T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P2 | post | ✓ 已合并（1699ba8） | AC 6.1-6.5 全过；PL L4 final sign-off；Batch 2 全部完成 |
 
 **Batch 1 总结**（dev-log 037）
 - 时间跨度：2026-05-06 18:00 ～ 2026-05-07 01:46（~8h）
@@ -115,12 +117,14 @@
 - **版本**：v1.22
 - **主题**：Quota Mode 功能完善 + 5-bug 修复 + PQ 流程升级
 - **启动日期**：2026-05-06
-- **最后更新**：2026-05-06 20:02（Phase 3-5 完成）
+- **最后更新**：2026-05-07 02:35（Batch 2 合并 + governance 记录）
+- **当前阶段**：Batch 1 + Batch 2 全部合并完成（dev HEAD = b0e6605）；等架构师 PLANNING §10 全量 + Phase 7 启动
 - **截图归档**：`docs/dev-log/screenshots/T<NNN>-<short>.png`
   - P0 bug 修复必备 before/after 截图（参考 plan §8 第 5 项）
   - Tech-QA headed 测试截图存档于此
 - **重要约束**：
   - L4 验收门槛：zh-CN 不通过直接打回，无 known-issue 豁免
   - 工具链：screencapture + osascript + capturePage 三轨方案（否决 playwright-electron）
+  - Worktree 隔离：发现二级违规（dev-log 041），已升级 agent prompt 要求
 
 ---

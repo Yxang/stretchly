@@ -54,3 +54,5 @@
 - [037-20260507-0147-batch1-close-out.md](037-20260507-0147-batch1-close-out.md) — Batch 1 Close-out：3 任务 8 小时完成（2026-05-06 18:00～01:46），15/15 AC 全过，f8bd31f→a0d05e9→025e69c，worktree 违规＋no-display 约束发现闭环，证据形式演进方案 A→B，team 并行流程成熟度确认
 - [038-20260507-0200-T204-tech-qa-pass.md](038-20260507-0200-T204-tech-qa-pass.md) — T-204 技术 QA 通过（523/523 PASS，27 文件 +7 CSS 回归测试，:nth-child 选择器修复，AC 4.1/4.2/4.3 全过，文本证据方案，commit 5ccedd0，等待 CR）
 - [039-20260507-0210-T205-tech-qa-pass.md](039-20260507-0210-T205-tech-qa-pass.md) — T-205 技术 QA 通过（516/516 PASS，63 keys 补译，JSON 合法 + 覆盖 100% + 占位符 8/8 + CDP 实测加载，AC 6.1-6.5 全过，commit d7cd6a7 + be0333b，等待 CR）
+- [040-20260507-0230-batch2-merged.md](040-20260507-0230-batch2-merged.md) — Batch 2 合并完成（T-205 squash 1699ba8 + T-204 squash b0e6605，10/10 AC 全过，worktree 清理完成，dev HEAD b0e6605，下一步 PLANNING §10 全量集成检查）
+- [041-20260507-0235-tech-qa-t205-boundary-violation-escalation.md](041-20260507-0235-tech-qa-t205-boundary-violation-escalation.md) — 治理：tech-qa-t205 worktree 边界违规升级事件（直接 commit 268e493 到 dev 分支，违反 git-workflow.md，已 revert 3f921cd，功能零污染），根因分析 + 3 项改进建议：enforce hook 升级、PreToolUse hook 新增、agent prompt 强化
