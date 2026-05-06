@@ -48,3 +48,4 @@
 
 - [032-20260507-0015-T201-merged.md](032-20260507-0015-T201-merged.md) — T-201 squash merge 到 dev（f8bd31f，app/css/preferences.css grid-column 选择器扩展，AC 1.1/1.2/1.3 全过，cleanup f9b359e，branch 及 worktree 已清理，T-204 now unblocked）
 - [033-20260507-0030-tech-qa-worktree-boundary-violation.md](033-20260507-0030-tech-qa-worktree-boundary-violation.md) — 治理：tech-qa-t202 worktree 边界违规事件（在主仓库执行 headed，造成污染），已修正，spawn prompt 加固 worktree 隔离规则，T-202/T-203 内容无影响
+- [034-20260507-0045-T202-merged.md](034-20260507-0045-T202-merged.md) — T-202 squash merge 到 dev（a0d05e9，app/soft-reminder-renderer.js count 参数对齐，test/softReminder.js 4 用例全过，AC 3.1-3.5 全过，流程纠正完成 dev-log 033，screenshot 529c621 并入，branch 及 worktree 已清理，Batch 1 progress T-201✓ T-202✓）

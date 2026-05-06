@@ -44,6 +44,7 @@
 | 日期 | 分支 | 作者 | 审查者 | 描述 |
 |------|------|------|--------|------|
 | 2026-05-07 | fix/T201/quota-help-css | dev-t201 | merger | squash merge f8bd31f；app/css/preferences.css grid-column 选择器扩展；AC 1.1/1.2/1.3 全过；cleanup f9b359e；branch + worktree 已清理；T-201 completed |
+| 2026-05-07 | fix/T202/soft-reminder-i18n | dev-t202 | merger | squash merge a0d05e9；app/soft-reminder-renderer.js { seconds }→{ count: seconds }；test/softReminder.js 4 用例全过；AC 3.1-3.5 全过；流程纠正 dev-log 033 已完成；screenshot commit 529c621 并入；branch + worktree 已清理；T-202 completed |
 
 ---
 
@@ -90,7 +91,7 @@
 | 任务 | 功能 | 优先级 | QA 阶段 | 当前状态 | 备注 |
 |------|------|--------|---------|---------|------|
 | T-201 | Bug 1 CSS：quota help 区竖条排版修复 | P0 | post | ✓ 已合并（f8bd31f） | AC 1.1/1.2/1.3 全过；T-204 now unblocked |
-| T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P0 | atdd | CR PASS（e098835） | tech-qa 全量+headed 验证已完成，准备合并 |
+| T-202 | Bug 5 i18next：{ seconds } → { count: seconds } | P0 | atdd | ✓ 已合并（a0d05e9） | AC 3.1-3.5 全过；流程纠正完成（dev-log 033）；T-203 可全力推进 |
 | T-203 | Bug 4 planner 热重建 + main.js IPC | P0 | atdd | 开发完成 | 进行中：tech-qa 全量+headed 验证（5 不变量重点） |
 | T-204 | Bug 2 advanced 区排版（调研型） | P1 | post | 可启动 | T-201 已合并，障碍已清除，可进入开发 |
 | T-205 | Bug 3 zh-CN quota.* 补译 ~60 keys | P2 | post | pending | 独立任务，后续启动 |
