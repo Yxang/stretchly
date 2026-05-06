@@ -128,3 +128,13 @@
   - Worktree 隔离：发现二级违规（dev-log 041），已升级 agent prompt 要求
 
 ---
+
+## v1.22 Close-out（Phase 7 等候）
+
+| 日期 | 事件 | 状态 | 备注 |
+|------|------|------|------|
+| 2026-05-07 03:00 | Governance C+ 裁定 | ✓ 架构师批准 | docs/ 纯文档 chronicler 可直推 dev（v1.22 沿用既有实践，v1.23 codify）；dev-log 040/041/042 补齐；用户 memory 清理完成 |
+| 2026-05-07 03:XX | Dev-log 040-042 + 索引修复 | ✓ 提交 | origin/dev 新 HEAD 待确认 |
+| 待启动 | Phase 7 全量回归测试 | ⏳ 等待 | 架构师下达启动令 |
+
+---
