@@ -43,3 +43,7 @@
 - [029-20260506-2130-T201-cr-pass.md](029-20260506-2130-T201-cr-pass.md) — T-201 代码审查通过（变更最小 app/css/preferences.css 一行，符合 IF-4，AC 1.1 满足，commit 387fcec，等 headed 截图验证）
 - [030-20260506-2131-F301-electron-dist-path-decision.md](030-20260506-2131-F301-electron-dist-path-decision.md) — F-301 PQ 升级决策：Electron binary 复用方案（ELECTRON_OVERRIDE_DIST_PATH 避免 worktree 重复下载 600MB binary）
 - [031-20260506-2145-T202-cr-pass.md](031-20260506-2145-T202-cr-pass.md) — T-202 代码审查通过（i18next 参数对齐 app/soft-reminder-renderer.js 1 行 + 测试反向断言，509/509 PASS，commit e098835，准备合并）
+
+### 2026-05-07
+
+- [032-20260507-0015-T201-merged.md](032-20260507-0015-T201-merged.md) — T-201 squash merge 到 dev（f8bd31f，app/css/preferences.css grid-column 选择器扩展，AC 1.1/1.2/1.3 全过，cleanup f9b359e，branch 及 worktree 已清理，T-204 now unblocked）
