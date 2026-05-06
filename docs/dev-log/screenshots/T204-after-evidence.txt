@@ -1,0 +1,53 @@
+T-204 Advanced Layout Bug — AFTER Evidence (Static Analysis)
+============================================================
+Date: 2026-05-07
+Method: Static CSS diff + HTML child-count verification + test suite pass
+
+## Fix Applied
+
+File: app/css/preferences.css
+Lines changed: 6 selector values updated (+10 offset applied to each nth-child)
+
+BEFORE:
+  .schedule > :nth-child(1)  { grid-column: 1/2; grid-row: 1/6; ... }
+  .schedule > :nth-child(9)  { grid-column: 1/2; grid-row: 8/12; ... }
+  .schedule > :nth-child(17) { grid-column: 1/2; grid-row: 15/18; ... }
+  (+ 3 RTL body[dir=rtl] variants)
+
+AFTER:
+  .schedule > :nth-child(11) { grid-column: 1/2; grid-row: 1/6; ... }
+  .schedule > :nth-child(19) { grid-column: 1/2; grid-row: 8/12; ... }
+  .schedule > :nth-child(27) { grid-column: 1/2; grid-row: 15/18; ... }
+  (+ 3 RTL body[dir=rtl] variants)
+
+## Verification: Child counting
+
+.schedule direct children (preferences.html:149-419):
+  Child 11 = div (preferences.schedule.miniBreaks) at line 290  ✓ section label
+  Child 19 = div (preferences.schedule.longBreaks)  at line 352  ✓ section label
+  Child 27 = div[data-strict-mode] (preferences.schedule.strictMode) at line 403  ✓ section label
+
+## Verification: .quota-advanced-content grid-column path
+
+After fix, when quota mode is on and advanced is expanded:
+  .schedule > :nth-child(9) no longer applies to .quota-advanced-content
+  .schedule > div rule (grid-column: 2/-2) now applies uncontested
+  .quota-advanced-content occupies the full auto-width content column (2/-2)
+  .quota-advanced-row items (label 180px min + range 200px) fit correctly in the wide column
+
+## Verification: No nth-child conflict with quota items
+
+Child 1 (.quota-scheduling-mode): no grid-column override → gets 2/-2 (correct)
+Child 2 (.quota-scheduling-mode): no grid-column override → gets 2/-2 (correct)
+Child 3 (details.quota-help): no override → gets 2/-2 (correct, T-201 rule)
+Child 8 (.quota-advanced-toggle): no override → gets 2/-2 (correct)
+Child 9 (.quota-advanced-content): no override → gets 2/-2 (FIXED)
+
+## Test suite
+
+vitest run (from main worktree): 516/516 PASS (26 test files)
+lint: CSS file not subject to StandardJS; JS files unchanged
+
+## diff stat
+
+app/css/preferences.css | 6 changed lines (3 selector updates + 3 RTL selector updates)
