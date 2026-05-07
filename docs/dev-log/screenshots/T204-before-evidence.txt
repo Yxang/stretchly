@@ -1,0 +1,62 @@
+T-204 Advanced Layout Bug — BEFORE Evidence (Static Analysis)
+=============================================================
+Date: 2026-05-07
+Method: Static CSS + HTML analysis (agent shell has no display per dev-log 035)
+
+## Root Cause Identified
+
+The `.schedule` grid section in preferences.css had three `:nth-child()` selectors
+that assigned `grid-column: 1/2` (the left label column) to specific children:
+
+  .schedule > :nth-child(1)  { grid-column: 1/2; grid-row: 1/6; ... }
+  .schedule > :nth-child(9)  { grid-column: 1/2; grid-row: 8/12; ... }
+  .schedule > :nth-child(17) { grid-column: 1/2; grid-row: 15/18; ... }
+
+These selectors were designed for the pre-quota HTML structure where:
+  - :nth-child(1) = miniBreaks section label
+  - :nth-child(9) = longBreaks section label
+  - :nth-child(17) = strictMode section label
+
+## T009 and T018 prepended 10 new quota children to .schedule:
+
+  Child  1: div.quota-scheduling-mode (schedulingMode title)
+  Child  2: div.quota-scheduling-mode (schedulingMode radios)
+  Child  3: details.quota-section.quota-help (T018 help accordion)
+  Child  4: div.quota-section.hidden (preset label)
+  Child  5: div.quota-section.hidden.quota-preset-row (relaxed)
+  Child  6: div.quota-section.hidden.quota-preset-row (default)
+  Child  7: div.quota-section.hidden.quota-preset-row (strict)
+  Child  8: div.quota-section.hidden.quota-advanced-toggle
+  Child  9: div.quota-advanced-content.hidden  ← BUG HERE
+  Child 10: div.quota-section.hidden (hr separator)
+  Child 11: div (miniBreaks label — was child 1)
+  ...
+  Child 19: div (longBreaks label — was child 9)
+  ...
+  Child 27: div[data-strict-mode] (strictMode label — was child 17)
+
+## Observed bug (rendered path reasoning)
+
+When quota mode is enabled and user clicks "Advanced" toggle:
+  - .quota-advanced-content gets .hidden removed → becomes display:flex
+  - BUT .schedule > :nth-child(9) rule fires:
+      grid-column: 1/2  ← forces advanced content into LEFT label column (25% width)
+      grid-row: 8/12    ← wrong row span
+  - Result: the entire advanced content block is crammed into the narrow left
+    column (25% width), causing severe layout overflow and text wrapping
+  - The .quota-advanced-row items (label 180px min + range 200px) cannot fit
+    in a 25%-wide column → visual chaos / overflow
+
+## File references
+
+preferences.html:149 — <div class="schedule hidden"> (schedule container)
+preferences.html:203 — <div class="quota-advanced-content hidden"> (child 9 of .schedule)
+preferences.css:115-120 — the wrong :nth-child(9) rule (BEFORE fix):
+  .schedule > :nth-child(9) {
+    grid-column: 1/2;
+    grid-row: 8/12;
+    padding: 0 16px;
+    text-align: right;
+  }
+preferences.css:95-97 — .schedule > div, .schedule > details { grid-column: 2/-2; }
+  (correct default rule that :nth-child(9) was overriding with higher specificity)

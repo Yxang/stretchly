@@ -17,11 +17,41 @@ window.onload = async (event) => {
   document.ondrop = event =>
     event.preventDefault()
 
+  // Resolve quota status for red-tier postpone cost label (quota mode only).
+  // Falls back gracefully when get-quota-status handler is not yet wired in main.js.
+  let quotaStatus = { schedulingMode: 'classic', tier: 'green' }
+  try {
+    quotaStatus = await window.breaks.getQuotaStatus()
+  } catch (_err) {
+    // handler not yet implemented (T007 dependency) — classic path
+  }
+
+  const postponeCost = await window.settings.get('postponeCost')
+  const redPostponeMultiplier = await window.settings.get('redPostponeMultiplier')
+  const isRedTierQuota = quotaStatus &&
+    quotaStatus.schedulingMode === 'quota' &&
+    quotaStatus.tier === 'red'
+
   document.querySelector('#close').onclick = async event =>
     await window.breaks.finishBreak(manualAwaiting)
 
-  document.querySelector('#postpone').onclick = async event =>
-    await window.breaks.postponeBreak()
+  document.querySelector('#postpone').onclick = async event => {
+    const tier = (quotaStatus && quotaStatus.tier) || null
+    await window.breaks.postponeBreak(tier)
+  }
+
+  // Show 2× deduction label on the postpone button when in quota red tier.
+  if (isRedTierQuota) {
+    const cost = Math.round(postponeCost * redPostponeMultiplier)
+    const postponeSpan = document.querySelector('#postpone > span[data-i18next]')
+    if (postponeSpan) {
+      // Use i18n key if available; fall back to English literal (i18n gap: quota.postpone.redCost).
+      // T011 provides quota.redPostponeWarning.title but not quota.postpone.redCost.
+      // Using inline English until T011 adds the key or architect confirms the key name.
+      postponeSpan.removeAttribute('data-i18next')
+      postponeSpan.textContent = `Postpone (costs ${cost}%)`
+    }
+  }
 
   document.querySelector('.break-idea').innerHTML = window.breaks.sanitizeIdea(idea[0])
   document.querySelector('.break-text').innerHTML = window.breaks.sanitizeIdea(idea[1])

@@ -159,6 +159,111 @@ When a Stretchly instance is running, the `stretchly` command can be use to inte
 
 Type `stretchly help` to get a list of all commands and options available as well as some examples.
 
+## Quota Mode
+
+Quota Mode is an alternative scheduling strategy introduced in v1.21. Instead of firing breaks on a fixed timer ("you worked 10 minutes, now take a break"), it tracks a break budget — your *quota* — that drains as you work and refills when you rest. How Stretchly responds to you changes depending on how much quota you have left.
+
+### What & Why
+
+Classic mode is great when your day has a predictable rhythm. But if you have back-to-back calls, skip a few breaks, then have a quiet afternoon, classic mode treats every moment identically. Quota Mode remembers. If you skipped three breaks this morning, your quota is already low by noon, and Stretchly will be more assertive about getting you to rest — rather than silently resetting the timer each time.
+
+The key difference: **classic mode is driven by elapsed time since your last break; quota mode is driven by today's remaining break credit.**
+
+### How to enable
+
+Open **Preferences → Scheduling** and select **Quota**. You will be offered three presets to start with. You can switch back to Classic at any time without losing any settings.
+
+> *Screenshot placeholder: Preferences → Scheduling → Quota selected*
+
+### The three tiers (and the red zone)
+
+Stretchly tracks two quotas independently: one for mini breaks and one for long breaks. Each starts at 100% every morning and drains linearly as you work.
+
+| Tier | Mini quota | What happens |
+|------|-----------|--------------|
+| Green | > 70% | You are comfortably paced. The tray icon is green. Stretchly sends one OS notification when quota first drops to 70% as a gentle early warning (re-arms after quota recovers to ≥80%), then stays quiet. |
+| Yellow | 30–70% (inclusive) | Breaks are becoming important. A small, non-intrusive reminder window appears in a corner of your screen every 5 minutes. You can rest now, postpone 2 minutes, or dismiss it. |
+| Orange | 10–30% (exclusive) | Your break budget is running low. The corner reminder reappears every 2 minutes. |
+| Red | ≤ 10% | Critical. Breaks fire full-screen as in classic mode. Each postpone now costs **twice** the usual quota deduction. |
+
+Default thresholds (70% / 30% / 10%) are configurable in Advanced preferences.
+
+Long break quota is tracked independently. It does **not** use the four-tier scheme — instead, if no long break is taken within 120 min, Stretchly enters a persistent-reminder mode (interval shrinks as `base / (k+1)` per rejection).
+
+**Postpone costs:** dismissing a reminder or postponing costs a small amount of quota (default: 10% for postpone, 5% for dismiss). In the red tier, postpone costs are doubled automatically. This ensures that repeated deferral is not cost-free.
+
+### Soft reminder window
+
+In the Yellow and Orange tiers, Stretchly shows a compact window in a corner of your screen instead of interrupting your flow with a full-screen break. The window shows your current mini and long quota as a progress bar and offers three actions:
+
+- **Rest now** — starts the break immediately
+- **+2 min** — postpones for 2 minutes (costs quota)
+- **Ignore** — closes the window (costs less quota than postpone)
+
+The window auto-closes after 90 seconds if you do not interact with it. Auto-close does not cost quota — Stretchly simply treats it as "user did not notice" and will remind you again when the interval elapses.
+
+On Wayland, the corner window is replaced by an OS notification (the Wayland compositor does not allow apps to position windows at absolute screen coordinates), so you will still get a reminder — just as a toast rather than a floating window.
+
+### A typical day
+
+This example uses the Default preset (mini cycle x=25 min, long break y=5 min). Mini quota drains at 4 %/min; long quota at 0.83 %/min. Actual values are affected by idle/DnD/exclusion freeze periods.
+
+| Time | Event | Mini quota | Long quota | Tier |
+|------|-------|-----------|-----------|------|
+| 09:00 | Session starts (daily reset at 06:00) | 100% | 100% | Green |
+| 09:25 | Mini-break taken (20 s) | 100% | ~79% | Green |
+| 09:50 | Mini-break taken | 100% | ~58% | Green |
+| 10:15 | Mini-break taken | 100% | ~37% | Green |
+| 10:40 | Mini-break taken | 100% | ~17% | Green |
+| 11:00 | Long quota hits 0% — persistent-nudge mode starts | ~20% | ~0% | Yellow / deadline |
+| 11:05 | Long break taken (5 min) | ~70% (+50% bonus) | 100% | Green |
+| 13:30 | Yellow tier — soft reminder fires (150 min since 11:05, no break) | ~36% | ~72% | Yellow |
+| 14:30 | Red tier reached | ~8% | ~55% | Red |
+| 14:32 | Mini-break taken | 100% | ~53% | Green |
+| 17:00 | Manual quota reset via tray | 100% | 100% | Green |
+
+*Numbers assume no idle/DnD/exclusion freeze periods; your real timeline will vary based on actual user activity.*
+
+**Long break hard deadline:** if you go 2 hours without a long break, Stretchly enters "persistent reminder" mode — a full-screen reminder fires, and if dismissed, it returns after 10 minutes, then 5, then shorter and shorter intervals until you take the long break. Completing the long break exits this mode.
+
+### Resetting quota
+
+You can reset both quotas to 100% at any time:
+
+- **Tray menu:** click the Stretchly tray icon → *Reset quota*
+- **Keyboard shortcut:** configure *Reset quota shortcut* in Preferences → Advanced
+- **Command line:** `stretchly reset-quota` (when Stretchly is running)
+
+Daily reset happens automatically at your configured morning hour (default: 06:00), even if the app was asleep or the machine was suspended overnight.
+
+### When NOT to use Quota Mode
+
+Quota Mode works best if you use your computer for long uninterrupted stretches. Consider staying on Classic mode if:
+
+- **Your day is meeting-heavy.** If you spend most of your time in video calls, your quota drains but you are not actually at a keyboard. Quota Mode may feel too aggressive on your focused work time afterward.
+- **You use a Pomodoro timer.** If you already manage your work/rest rhythm with a dedicated Pomodoro tool, Quota Mode will conflict with it. Classic mode (or pausing Stretchly entirely during Pomodoro sessions) is more ergonomic.
+- **You only use your computer for short sessions.** If you open your laptop for 20–30 minutes at a time, your quota rarely drops below green, so the extra complexity offers no benefit over Classic mode.
+
+### FAQ
+
+**Does quota keep draining when I am idle?**
+No. When Stretchly detects that you have been idle for your configured idle threshold (default: 5 minutes), quota consumption is frozen. It resumes when you return to the keyboard.
+
+**Does quota keep draining during Do Not Disturb?**
+No. Stretchly pauses quota consumption whenever your OS "Do Not Disturb" mode is on, just as it pauses breaks in Classic mode.
+
+**What about app exclusion rules?**
+If you have configured Stretchly to pause breaks when a specific app is running (e.g. a screen recorder or a game), quota consumption is also frozen during that time.
+
+**What happens when my computer sleeps or locks?**
+Quota consumption is frozen on suspend or lock and resumes on wake or unlock. You will not be penalized for overnight sleep.
+
+**Does long break quota drain at the same rate as mini break quota?**
+Yes, both drain at the same rate by default (100% per work cycle). They refill separately: mini breaks refill mini quota, and long breaks refill long quota plus a 50% bonus to mini quota (to avoid being immediately nagged for a mini break right after a long one).
+
+**Can I see my current quota without opening Preferences?**
+Yes — the tray icon changes color by tier (green / yellow / orange / red), and hovering over it shows a tooltip with the exact percentages for both mini and long quota.
+
 ## Preferences
 
 Most of the preferences can be customized by clicking on the "Preferences" item in the tray menu. (On Windows, to open Preferences, you can also double-click on the tray icon.)

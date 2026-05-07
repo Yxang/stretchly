@@ -1,0 +1,49 @@
+T-205 i18next zh-CN Load Evidence
+Date: 2026-05-07
+Branch: fix/T205/zh-cn-quota-i18n
+Commit: d7cd6a7 feat(i18n-zh-CN): translate quota namespace (T-205)
+Method: CDP WebSocket to live Electron instance (port 9228), preferences.html renderer
+Note: agent shell has no display access (dev-log 035); screenshot not possible; text evidence used
+
+=== Electron Launch ===
+Command: /Users/yxang/GitMine/stretchly/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron
+         /Users/yxang/GitMine/stretchly/worktrees/T205
+         --remote-debugging-port=9228
+         --user-data-dir=/tmp/stretchly-T205-qa
+Source path confirmed: /Users/yxang/GitMine/stretchly/worktrees/T205 (T205 worktree)
+CDP confirmed active: ws://localhost:9228
+
+=== Target Verification ===
+Preferences window: file:///Users/yxang/GitMine/stretchly/worktrees/T205/app/preferences.html
+CDP target ID: 2ADF499542617ECB (confirmed via json/list)
+
+=== Language Switch ===
+Action: window.settings.saveSettings("language", "zh-CN") -> triggers main.js i18next.changeLanguage("zh-CN")
+i18next backend loads: app/locales/zh-CN.json from T205 worktree
+
+=== i18next IPC Translation Results (zh-CN) ===
+Method: CDP evaluate async window.i18next.t(key) -> ipcRenderer.invoke('i18next-translate') -> main process i18next
+
+  OK  quota.softReminder.title:          休息提醒
+  OK  quota.tray.resetQuota:             重置配额
+  OK  quota.preferences.schedulingMode:  调度模式
+  OK  quota.preferences.quota:           配额
+  OK  quota.help.heading:               什么是配额模式？
+  OK  quota.help.freeze:                处于闲置、勿扰模式或运行排除应用期间，配额将冻结。离开期间不会消耗配额。
+  OK  quota.preferences.advanced.label: 高级
+  OK  quota.preferences.errors.tierOrder: 档位阈值须满足：绿色 > 黄色 > 橙色 > 0
+  OK  quota.softReminder.closingIn:     {{count}} 秒后关闭   <- placeholder {{count}} preserved
+  OK  quota.toast.greenCross.title:     提示 — 配额下降
+
+Missing keys: NONE
+STATUS: PASS — i18next loads zh-CN quota.* namespace correctly; no raw-key fallback; Chinese text rendered
+
+=== Key Observations ===
+1. All sampled quota.* keys return Chinese text, not the raw key string (which would indicate missing translation)
+2. Placeholder {{count}} preserved correctly in closingIn key
+3. Translations semantically reasonable (e.g., "休息提醒"=Break reminder, "重置配额"=Reset quota)
+4. Note: Translation *quality* (naturalness, terminology) is L4 user acceptance scope, not tech QA scope
+
+=== Language Restored ===
+After test: window.settings.saveSettings("language", "en") -> language restored to English
+T205 Electron instance terminated.

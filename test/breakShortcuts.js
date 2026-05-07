@@ -202,6 +202,26 @@ describe('pauseBreaksShortcut', () => {
         expect(pauseBreaks).not.toHaveBeenCalled()
       })
     })
+
+    describe('resetQuotaShortcut', () => {
+      it('calls resetQuota', () => {
+        const log = { info: vi.fn() }
+        const resetQuota = vi.fn()
+        const pauseBreaks = vi.fn()
+
+        onShortcut({
+          name: 'resetQuotaShortcut',
+          settings: null,
+          breakPlanner: null,
+          functions: { resetQuota, pauseBreaks },
+          log
+        })
+
+        expect(log.info).toHaveBeenCalledWith('Stretchly: resetting quota by shortcut')
+        expect(resetQuota).toHaveBeenCalled()
+        expect(pauseBreaks).not.toHaveBeenCalled()
+      })
+    })
   })
 
   describe('setupBreak', () => {
@@ -261,7 +281,8 @@ describe('pauseBreaksShortcut', () => {
         skipToNextScheduledBreakShortcut: 6,
         skipToNextMiniBreakShortcut: 7,
         skipToNextLongBreakShortcut: 8,
-        resetBreaksShortcut: 9
+        resetBreaksShortcut: 9,
+        resetQuotaShortcut: 10
       }
 
       const settings = { get: vi.fn((name) => intervals[name]) }
@@ -277,18 +298,18 @@ describe('pauseBreaksShortcut', () => {
       // Check shortcut registration
       // ------------
 
-      expect(globalShortcut.register).toHaveBeenCalledTimes(10)
+      expect(globalShortcut.register).toHaveBeenCalledTimes(11)
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 11; i++) {
         expect(globalShortcut.register.mock.calls[i][0]).toBe(i)
       }
 
       // Check log
       // ------------
 
-      expect(log.info).toHaveBeenCalledTimes(10)
+      expect(log.info).toHaveBeenCalledTimes(11)
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 11; i++) {
         expect(log.info.mock.calls[i][0]).toMatch(`registration successful (${i})`)
       }
     })
