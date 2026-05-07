@@ -129,12 +129,36 @@
 
 ---
 
-## v1.22 Close-out（Phase 7 等候）
+## v1.22 发布 Close-out
+
+### 版本交付信息
+
+| 项目 | 值 |
+|------|-----|
+| 版本号 | v1.22 |
+| Trunk HEAD | 4855a6a（no-ff merge commit） |
+| Tag | v1.22（annotated tag fddf8fa） |
+| 用户 L4 PASS | 2026-05-07 |
+| 修复 Bug 数 | 5（T-201..T-205） |
+| AC 通过率 | 27/27 (100%) |
+| 治理 Finding 数 | 3（dev-log 035/041/042） |
+| 发布状态 | ✓ Production Ready |
+
+### 闭环记录
 
 | 日期 | 事件 | 状态 | 备注 |
 |------|------|------|------|
-| 2026-05-07 03:00 | Governance C+ 裁定 | ✓ 架构师批准 | docs/ 纯文档 chronicler 可直推 dev（v1.22 沿用既有实践，v1.23 codify）；dev-log 040/041/042 补齐；用户 memory 清理完成 |
-| 2026-05-07 03:XX | Dev-log 040-042 + 索引修复 | ✓ 提交 | origin/dev 新 HEAD 待确认 |
-| 待启动 | Phase 7 全量回归测试 | ⏳ 等待 | 架构师下达启动令 |
+| 2026-05-07 03:00 | Governance C+ 裁定 | ✓ 完成 | docs/ 纯文档 chronicler 可直推 dev（v1.22 沿用，v1.23 codify git-workflow.md） |
+| 2026-05-07 03:15 | Dev-log 040-042 + 索引修复 | ✓ origin/dev 434890d | 缺失文件补齐，索引修复完成 |
+| 2026-05-07 03:30 | Trunk merge + tag v1.22 | ✓ 4855a6a / fddf8fa | 架构师执行，version policy A（package.json 留 1.20.0） |
+| 2026-05-07 03:35 | v1.22 Release Retro | ✓ dev-log 043 | 完整回顾：5 bugs + 3 治理 findings + C+ v1.23 action items（dev-log 043） |
+
+### V1.23 治理 Carry-Forward
+
+**Architect C+ Ruling 待落地的 3 项 Action Items**：
+
+1. **git-workflow.md 第 27 行改写**：区分「per-task agent 禁止」vs「chronicler/architect/merger 可推 docs/」
+2. **Tech-QA Evidence 边界**：knowledge/tech-qa-post-cleanup-evidence-flow.md 补充「evidence 形式标准」
+3. **Agent 写入位置约束**：规则化「per-task 仅 worktree」「chronicler 仅 docs/」「禁 user-scope」
 
 ---
