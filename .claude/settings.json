@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Edit .claude/**",
+      "Write .claude/**",
+      "MultiEdit .claude/**",
+      "Edit docs/**",
+      "Write docs/**",
+      "MultiEdit docs/**"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/enforce-worktree-boundary.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
