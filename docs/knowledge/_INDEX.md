@@ -27,6 +27,7 @@
 | File | Tags | Summary | Source | Updated | Importance | Last Referenced | Superseded |
 |------|------|---------|--------|---------|------------|-----------------|------------|
 | product-quota-mode.md | `quota` `scheduling` `product` `onboarding` `ux` | Quota Mode 产品定位：配额驱动 vs 时间驱动、四档位机制、适用场景 | 版本事件 v1.21 | 2026-04-25 | 4 | — | — |
+| product-i18n-ac-precision.md | `i18n` `acceptance-criteria` `bug-diagnosis` `product` | i18n AC 精度：占位符参数名两层对齐检查 + 误诊识别流程（症状归因 vs 根因） | 版本事件 v1.22 | 2026-05-07 | 4 | — | — |
 
 ## 测试经验
 

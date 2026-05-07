@@ -18,3 +18,4 @@
 
 - **规格定稿前必须逐行算法验证**：PL 定稿含标准表的规格前，必须按算法逐行手算验证，确保表中每行输出与算法定义一致，再发出。「算法正确但表错」会导致 dev/tech-qa 多轮返工。
 - **规格变更必须经 Coordinator 统一路由**：PL 的规格裁决和验收标准变更必须经 Coordinator 统一路由后再到达 dev/tech-qa/architect，禁止 PL 直接发给技术侧 per-task agent，避免多方收到矛盾指令。
+- **i18n bug AC 必须两层覆盖（模板 key + 调用方参数名），且先 grep 确认症状根因再写 AC**：调用方传 `{ seconds }` 而模板用 `{{count}}` 是独立错误，仅验证渲染结果不能发现。症状出现在区域 X 不代表根因在 X（可能是另一 bug 的 fallback side-effect）— 先 grep 再写 AC，防止误诊造成 AC 范围膨胀。→ `docs/knowledge/product-i18n-ac-precision.md`
